@@ -1,0 +1,8 @@
+terraform refresh: query ifra provider to get the current state
+terraform plan: create an execution plan it's like a preview
+terraform apply: execute the plan
+terraform destroy: destry the ressources/infra
+terraform apply -auto-approve: auto apply without waiting for confirmation
+terraform state show <specifig resource>: fetch the ressource configuration with all its attribute
+terraform apply -var "var-name= value of the var"
+terrraform apply -var-file terraform-example.tfvars: we use to reference tha variable file the reference the defined variable on the tf config file

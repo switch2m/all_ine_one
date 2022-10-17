@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+    stages {
+        stage('init') {
+            steps {
+                script {
+                    gv = load "script.groovy"
+                }
+            }
+        }
+        stage('deplyement') {
+            steps {
+                echo 'deploying the project'
+                script {
+                    def x = BUILD_NUMBER
+                    def buildNumber = Jenkins.instance.getItem('weath_app_pip').lastSuccessfulBuild.number
+                    echo "last succesfull build is ${buildNumber}"
+                    def ltsbuild = gv.set_ltsbuild(x)
+                    def dockerinit= "docker stop jenkins-${JOB_NAME}-${buildNumber}"
+                    def dockercmd = 'docker run -d --name jenkins-${JOB_NAME}-${BUILD_NUMBER} -p 3080:3000 switch2mdock/weatherapp:${BUILD_NUMBER}'
+                    sshagent(['dani-webserver']) {
+                        sh "ssh dani@20.216.134.58 ${dockerinit}"
+                    }
+                }
+            }
+        }
+    }
+} 
+hna we decrement the build number using the groovy script file
+and we accessed the latest successful number build
+this is the following script.groovyfile we used:
+def set_ltsbuild(x) {
+    echo 'decrement buildnumber'
+    def y = x.toInteger() - 1
+    return y
+}
+return this

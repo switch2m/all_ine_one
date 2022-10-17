@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  labels:
+    app: my-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metatdata:
+      labels:
+        app: my-app
+    spec:
+      imagePullSecrets:
+        - name: my-azurecr-key
+      containers:
+        - name: my-app
+          image: zackcontainer.azurecr.io/my-app/latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+
+//here we pulled an image from a private container registry using the secret file my-azurecr-key

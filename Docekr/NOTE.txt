@@ -1,0 +1,95 @@
+what is a CONTAINER
+-a container is a way to package applicatons with all the necessary 
+dependencies and configurations. And this package is portable and it
+can be easily shared and moved around between a dev team and 
+operationnal team that portability of containers plus everything 
+package in one isolated environment is gives it some advantages
+that make development and deployment process more efficient.
+
+
+where do containers live
+
+-containers live in container repository
+-public repository for docker DOCKERHUB
+
+
+how do they improve the dev process
+ -before the containers the installation process is different on each 
+OS environment, also many steps where something could go wrong(set in
+up the envirnement)
+-after the containers we don't have to install any of the services
+directly on the OS because
+ 	./the container is its own isolated system layer with linux 
+based image you have everthing packaged in one isolated environment
+(example postgresql, node js)
+	./the container is packaged with all needed configuration
+	./one command to install the app
+
+how do they improve the deployment process
+ -before containers the dev team will produce artifacts together with 
+a set of instructions of how to install and congure those artifacts on the server so we would have a JAR file or something similar for our app and in addition we would need some kind of a database service or some other service also with a set of instructions of how to configure and set it up on the server so dev team would give those artifacts to the operations team and those will handle seting up the environment to deploy those apps. the problem of this kind of approach is
+	./ we need to configure and install everything directly on the OS(wich could lead to conflicts with dependency version)
+	./ it could be a misundertanding between the devs and ops team because everything is on a textuel guide as instructions or the ops team misinterpreted some of those intructions
+ -with containers this process is actualy simplified because now you have the dev and ops working in one team too package the whole configuration dependencies inside the app 
+	./devs and ops work together to package the app in a container
+	./no environmental configuration needed on server 
+
+Now let's discover what a container is technicaly 
+  A container technicaly is 
+	./ Layers of images: we have layers of satcked images on top of each orher and at the base of most of containers we would have a linux based image Layer(Alpine for exemple and we use it cause it has small size) on top of the base image u would have the application image Layer(postgresql for example)
+
+Docker image vs docker container
+docker images is the actuel package(the app package postagres with the dependecies )
+docker container is when i pull this image on my local machine and i actualy started so the app inside starts, so if it's not running basicly it's an image
+to sum up 
+Container is a running environment for image it has port that is binded to it which makes it possible to talk to the application wich is running inside of a container
+
+
+Docker VS Virtuel Box
+both are tools of virtualization
+the diff is that docker vitualize the application layer however the VMs as the applications and its own kernel so it virualize the complete OS
+	./ Size are different
+	./ Speed
+	./ Compatibility: VM of any OS can run on any OS host
+
+
+Docker Commands
+./ docker ps =list of running containers
+./ docker run <image> = create a new container 
+./ docker run --name <name it> <image> = create a new container with the specific name.
+./ docker run -d <image>= run the container in a detached mode it returns the id of the container 
+./ docker stop <id container> = stops the container
+./ docker start <id container> =restart a stopped container 
+./ docker ps -a =list running and stopped container
+./ docker pull <image> :<version> :it download the image app
+./ docker run <image> :<version> :it download the image and run it so it docker pull and docker start
+./ docker run -p<port>:<container port> <image>:<version> :to specify the binding port of the host machine 
+./ docker ps -a : it gives you all the container no matter if they're running currently or not
+./ docker images :it gives you all the images that you have locally
+./ docker logs <container id> : it shows you all the logs
+./ docker exec -it <container id> /bin/bash:we can get the terminal of the running container 
+./ docker run vs docker start: docker run works with images but docker start works with containers
+./ docker tag = rename an image
+./ docker inspect <volume name>= provide info about the volume
+
+PORTS section
+specifies wich port the container is listening to the incoming requests and when we install two version of an app image they are connected on the same port as long  as you're linking them to two different ports in your host machine
+
+
+Docker network
+the concept of docker network is that it creates its isolated docker network where the containers are running in so when we deployed two containers in the same docker network they can talk to each other using just the container name without localhost port number because they are in the same network and the app that run outside of docker like our node js wich just runs from node server its gonna connect to them from  the host using localhost and the port number
+
+what does actually junkins do ?
+when it buils the app so the app so that javascript app using the npm build IT PACKAGES THEN IN DOCKER IMAGE AND THE PUSHES IT INTO A REPOSITORY.
+
+what is a Dockerfile ?
+In order to build a docker image from an app we basically have to copy the content of that app into the dockerfile it could an artifact that we build. so dockerFile is a blueprint for creating docker images
+
+Docker volumes are used for data persistance(data is gone when after restarting or removing a container) it's replicate container data to the host machine.
+to create docker volume we usualy use this command:
+docker run -v name:<container directo>
+
+NB : the RUN end the CMD command in the dockerfile execute any linux command on the container HOWEVER the COPY  commmand get executed on the machine host
+also the CMD command is an entry point so we can have multiple run commands with linux commands but CMD just one and that marks te entry ponit 
+
+

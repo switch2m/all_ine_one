@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{ .Values.appName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}
+    spec:
+      containers:
+        - name: {{ .Values.appName }}
+          image: "{{ .Values.appImage }}:{{ .Values.imagetag }}"
+          imagePullPolicy: {{ .Values.imagepullPolicy }}
+          ports:
+              containerPort: {{ .Values.containerPort }}
+              protocol: TCP
+          env:
+          {{- range .Values.containerEnvPort }}
+          - name: {{ .name }}
+            values: {{ .value | quote }}  #quote is used cause the values attribute contain ""
+          {{- end }}

@@ -1,0 +1,24 @@
+Ansible is a tool to automate it tasks(like repetitive tasks, update docker versions on all servers) this could be done in several ways
+./execute tasks remotly from ur own machine
+./write the whle configurations on a single yaml file
+./ reuse same file multiple time as needed
+./ more reliable and less likely to make errors
+How ansible work
+Ansible actualy work with modules
+modules are small programms that do the actual job and each moule do a specific task
+play: defines which tasks, which hosts, which user
+we specify the hosts where the task should run on the hosts file in the ansible inventory list 
+Playbook describes: 
+- how and in which order
+- at what time an where ( on which machines )
+- what ( the modules) should  executed
+One advantage of ansible in relation with building image with docker using dockerfile is that its allows u to reproduce the app across many env (create the docker container, vagrant container, cloud instance, bare metal) and also manage not only the docker container but also the host machine where the machine is hosted 
+
+HOst key checking ssh
+when we ssh two vm the two vms should identifie and authentificate themselves so one must allow the connection and the other must recognize the server as a valid host, for this to happen the server sshing into the target server must add this info(target server info:name,ip,ssh_key and that's done using this command ssh-keyscan -H <ip_addr> >> ~/.ssh/known_hosts) in a file named known_host and the other step is fot the target server where we're sshing to auhtentificate us(and this is done using this command ssh-copy-id <user>@<ip_add> this will add the public key for my local machine to the sshing target server in a file named authorized_keys after this update on the file we are no longer asked to authentificate to connet to the server)
+
+Module is a reusable peace of code
+
+In ansible there is a concept called register that allows to print out the result of an executed command by storing the output of the command in a variable that we named wathever we want and print it out using a module called debug
+
+

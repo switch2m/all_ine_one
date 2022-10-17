@@ -1,0 +1,10 @@
+packaging = building the code of the application
+building the code evolve compiling and compressing the code in one single file
+we keep artifact in storage called artifact repository like NEXUS
+artifact includes whole code plus dependencies
+build tools depends on programming language for java there is MAVEN or GRADLE
+To execute a java artifact .jar filr we use the gollowing command
+java -jar <name of the jarfile>
+npm and yarn are package managers and not build tools they install dependencies but not used for transpiling java code
+install webpack dependencies to build a js app
+and add it as a params in scripts build attribute in package.json file

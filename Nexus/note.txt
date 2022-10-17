@@ -1,0 +1,15 @@
+Nexus is a repository manager that organizes, stores and distributes artifacts needed for development. With Nexus, developers can completely control access to, and deployment of, every artifact in an organization from a single location, making it easier to distribute software. 
+Artifacts = apps built into a single file
+Artifact repository= storage of those artifact
+artifact repository manager= upload and store different built artifacts adn it's a central storage and it's provide multiple repository for different formats(npm for js, helm for kubernetes,maven for java, NuGet for .NET,...)
+Nexus features: Backup and restore, cleanup policies, 
+flexible and powerful REST API for integration with other tools, multi-format support.
+the NEXUS software contains two main folders
+Nexus folder that contain runtime and application of NEXUS
+and Sonatype-work which contains own config for nexus and data( like logs , ip address that accessed nexus, and also the uploaded files and metada we can use this folder to backup the data )
+NB: don't start Nexus as root user the BEST PRATICE IS TO CREATE NEW USER FOR NEXUS( adduser nexus )
+proxy repo type: linked to remote repository ( exemple MVNrepository ).
+hosted repo type: the primary storage for artifacts	(maven -snapshots: the repo where the 	organizations publish internal devolepment 	version
+	maven -relareses: the repo where ur 	organizations publishes internal releases).
+group repo type: it allows u combine multiple repository and even other repository groups in a single repository)
+Blob store is an internal storage mechanism for binary files artifact

@@ -1,0 +1,4 @@
+3 type of jobs in jenkins
+-freestyle job: to perform single task(build or tes or deploy)
+-pipeline job; to have one single job for all of those steps(build , test and deploy) "it's used for a single branch
+-multi-branch pipeline: parent of pipeline jobs

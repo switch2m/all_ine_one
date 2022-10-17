@@ -1,0 +1,29 @@
+to grant sudo prvilage to user we have to add it to sudo groups usning the following command :
+usermod -aG sudo <user name>
+adduser : to add a user
+usermod : to modify user
+groupadd: to add a group
+ls -l   : provide info about file owner and group
+chown : change ownership to a new user and new group
+chown username:group filename
+chgrp   : change the group owner of a file
+chmod   : remove or change permission to a fileo or folder
+chmod -x <folder/file> "remove execute permission for the folder"
+chmod +x <folder/file>  "add execute permission for the folder"
+chmod <g/u/o/a><+/-><w/r/x> <folder/file>  "<g/u> g stands for group, u for user, o for other user, a for all users  then <+/-> to specify if we wanna add or remove permission and <w/r/x> to specify the type of permission we wanna add w=write r=read w=execute"
+and we can do this to add multiple permissions in one command
+chmod g=+rwx <folder/file>
+SCRIPTING
+Shell is a command intrepreter it transates our command that the OS kernel can understand
+bash is a programming language
+to specify the type of shell we using we had to add this line in the heading of shell file
+for bash: #!/bin/bash
+for sh  : #!/bin/sh
+$ to reference a variable
+read -p "message to print in terminal" varwheretostoreinput 
+$* reference all params in your input
+$# display the length of ur input
+for arithmetic operation we have to use double parenthesis like so <sum=$(($sum+$score))>
+$? Captures value returned by the last command
+source .bashrc load the new env variable into the current shell session
+ Extracting a gzip tar Archive *.tar.gz using option -xvzf : This command extracts files from tar archived file.tar.gz files.  <$ tar xvzf file.tar.gz>

@@ -1,0 +1,46 @@
+<<<<<Open port 443 on VM>>>>>
+
+the default file on /etc/nginx/sites-enabled configuration with https request:
+
+server {
+        listen 443 ssl default_server;
+        listen [::]:433;
+
+        ssl_certificate /etc/ssl/beamtel.pem; //wa have to chmod 700 to ssl certificate file
+
+        ssl_certificate_key /etc/ssl/beamtelkey.key; //wa have to chmod 700 to ssl certificate file
+
+        server_name beamtel.ma;
+        location / {
+                proxy_pass http://127.0.0.1:3080; //represent localhost:3080
+                proxy_set_header Host $host;
+        }
+}
+server {
+        listen 80;
+        listen [::]:80;
+
+        server_name _;
+        return 301 https://beamtel.ma;
+}
+
+---------------------------------------------------------------------------------------------
+
+the default file on /etc/nginx/sites-enabled configuration for just http request:
+server {
+        listen 80;
+        listen [::]:80;
+
+        server_name _; //_ represent just forward an http request for the ip address but we replace _ by the domaine name
+
+        location / {
+                proxy_pass http://127.0.0.1:3080;
+                proxy_set_header Host $host;
+        }
+        
+}
+for free ssl certification use certbot letsencrypt by python by running the following command
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d your-domaine.com
+for auto-renawal run:
+certbot renew --dry-run

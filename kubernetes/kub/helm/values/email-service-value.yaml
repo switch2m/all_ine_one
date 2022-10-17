@@ -1,0 +1,11 @@
+appName: emailservice
+appImage: gcr.io/google-samples/microservices-demo/emailservice
+apptag: v.0.2.3
+replicaCount: 2
+containerPort: 8080
+containerEnvPort:
+- name: PORT
+  value: "8080"
+
+serviceType: ClusterIP
+servicePort: 8080

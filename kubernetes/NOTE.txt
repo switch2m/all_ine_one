@@ -1,0 +1,138 @@
+./node is like a simple server physical or virtual machine it consists of multiple pods
+./pod is (a layer of) an abstraction over container (it create a running envirnement or a layer on top of a container) it's usually meant to run 1 main application container
+each pod gets its own IP to communicate between pods
+
+./<service> is static/permanent ip add that can be attach to each pod and even if the pod dies the service and it's ip add will stay and its also a load balancer(which maen the service catch the request and forward it to the replica node there is some.
+./externel service is a service that opens the communication from externel sources
+./pods communicate with each other using a service
+./internal service for internal pods communication that shouldn't be accessible publicaly like mongodb pods and the application pod
+./Ingress :(route traffic into the cluster) this service get the request first then forward the request to the <service>
+
+./Configmap: externel configuration of your application
+./secret: used to store secret data and encrypt that secret it contains thing like credentials , certificate ..
+
+./Volumes used for data persitent it basically attaches a physical storage on a hard drive to ur pod and that storage could be on a local machine or on a remote(outside of the cluster)
+
+./ replicate for no downtime the replica should connect to the same service, and to create a replica we wouldn't create a second pod but instead we define Blueprints for pods
+
+./deployement: is a blueprint for pads
+and in practice we wouldn't be creating pods but we would be creating deployments because there we can specify how many replicas and scale up or down the number of replica needed
+in practice we mostly work with deployment and not with pods
+
+./statefulset is meant mainly for databases replication (its a solution for the problem that we can't replicate database pods cause when we proceed read/write request to a same  shared data storage we don't know which one of them is making the request which cause data inconsistencies) 
+BUT A COMMUN PRACTICE IS TO HOST DB APPLI OUTSIDE OF THE APPLICATION CLUSTER.
+
+KUBERNETES ARCHITECTURE
+
+./NODE: each node has multiple Pods on it, on  every node 3 process must be installed (Container runtime(docker, containerd...),  kubelet which is a process of kubernetes runtime that interacts with both the container and the node and does things like starting PODs and containers and the last process is Kube proxy which is responsible for forwarding request from services to pods)
+
+The MASTER processes is responsible for managing processes (interacting with the cluster and deciding on which node to schedule pod also it's responsible for re-scheduling and restarting a pod)
+4 processes run on every master node:
+	API Server: get the client request then validate it and then forward it to the other process
+	Schedular: decide on which node to schedule pod depending on the least busier node(response to the question what ressource are more available)
+	Controller mnager: detect state changes like crushing of pods. so if a pod died died controller manager detect that and make a request for schedular to restart the pod
+	etcd: is the cluster brain it stores all the cluster changes(like history or logs of the cluster)
+
+Minikube and Kubectl
+./Minkube: 1 node kubernetes cluster that runs in a virtuel box
+./kubecl: commend line tool for kubernetes cluster.
+
+Namespaces: a way to organise ressources , u can think of it as a virtuel cluster inside a cluster, there is 4 Namespaces by default(default, kub-system, kub-public, kub-node-lease)
+namespace usecases:
+	./Structure your components
+	./Avoid conflicts between teams
+	./Share services(re-usability) between different environments
+	./Access and ressource limits on namespaces level
+
+namespace characteristics:
+	./ you can' access most ressources from another Namespace(each namespace must define it's own configmap which reference) however we can share service ressource across namespace
+	./ There are components that can't be namespaced like volume and node
+Create component in a namespace: (in configmap file)
+when we don't provide a namespace in the configmap file, it's create them in the default namespace.
+
+Services:
+provides: stable ip address, loadbalancing,  loose coupling
+ClusterIP service: it's the default type, it's an internal service Only accessible within the cluster.
+headless service: usecase is when we deploy statefull application like databases(mysql,mongodb...) or when pods want to communicate directly to specififc pod(communication between pods) or user want to communicate directly with a specific port
+NodePort
+There is three service type attributes: ClusterIP the default, NodePort and LoadBalancer.
+NodePort: Create a service that is accessible at a static port on each worker node in the cluster and nodePort has a range(30000-32727)
+LoadBalancer: the service become accessible externely through cloud providers Loadbalancer 
+NodePort type is not secure so we don't use it for production we can use it for test purposes
+
+Ingress:
+When we make an http/https request to a domaine name this request get forward to the ingress controller(the are several ingress controller like the k8s nginx ingress Controller) that act as proxy server( proxy server is a serverthat acts as an intermediary between a client requesting a resource and the server providing that resource) it's job is to evaluate the ingress rules and to handle redirections. after that the ingress controller manager forward the request ingress service which redirect it too the service and then service forward the request to the pod which the request goes to.
+If we are using some cloud service provider we can setup a Cloud load balancer and the externel request comming from the browser will hit first the load balancer and then forward the req to the ingress controller( this one of the most commun strategise, and it's benefit is that u don't have to set up load balancer urself u will have the load balancer up and running with easy setup)
+
+Volumes:
+Volumes is used to persist data
+so we use storage that dosn't depend on the pod lifecycle.
+storage must be available on all node, and needs to survive even if the cluster crushes
+Persistant Volume is a cluster ressource and it's just an abstract components it has to take storage from the actual physical or remote storage. created via YAML file (kind: persistantVolume and spec: how much storage) it can't be namespaced, it's accessible to the whole cluster
+how it works is that the pod make a claim using volume persistant Claim PVC( which is also a type of Volume we create it using tha yaml file by specifying the kind key the persistantVolumeClaim PVC must be in the same namespace as the pod using the claim) and in order to connect the pod and the PVC we reference the PVC name on the pod volume attribute on the yaml file then the Claim tried to find a volume in the cluster that satisfied the claim.
+Storage Class create and provisons Persistant Volumes dynamicaly(automated)
+So Basicly:
+Volume is a diretory with some data stored on it, these volume are accessible in containers in a port(YAml file).
+
+ConfigMap and Secret as a Volumes:
+ConfigMap and Secret components in K8s are used both to create individuel key pair value that u can use as env variables in u pods configuration
+Or u can create file that u can pass in as a configuration file to ur application
+ConfigMap and Secret are Volume types(local volume type)
+
+StatefulSet:
+K8s used for stateful applicaton like mysql, mongodb .. or any app that stores data to keep track of it's state in the other Hand there is stateless app which dosn't keep record of state
+Stateless app are deployed using Deployment
+Stateful app are deployed using StatefulSet
+Deployment vs StatefulSet
+replicating stateful app is more difficult, replica can't be created at same time, can't be randomly addressed(it create sicky identity for each pod), created for the same specification but are not interchangeable and finaly it maintain persistant identifier across any re-scheduling(meaning when pods dies and it got replaced by new pod it keeps that identity) unlike the deployment that gets random hash StatefulSet get fixed ordered names.
+In addition to that each pod in a StatefulSet get it's own DNS(individuel service name for each pod) endpoint from a service
+
+Helm -Package Manager
+
+Helm is package manager for kubernetes(packaging collection of yaml file
+the second feature of Helm is that is Templating Engine( let's say we have several microservice and deployment and service configurations for those microservice are pretty much the same with the only deffirece in tha app name and version are different or the docker image and version are different, so without helm u would right seperate yaml file for each of those microservice, so u have multiple service and deployement files, using helm we can define a commun blueprint for all the microservices and the values that are dynamic are replaced by placeholders)
+
+Kubernetes Operators
+are used mainly for stateful applications
+Stateful App without operator: stateful application require manuel intervention (people to operate these application(handle  replicat , own state and identity 
+,order important) however in kubernetes this could be a problem because having to manualy update and maintain an app in k8s kind of goes against the main k8s concepts which is automation, seld healing , less human intervention...
+So, how to manage stateful applications?
+the solution is :Operator
+Stateful app with Operator:
+Operator basicaly replaces human operator with software operator, so all the manual task that the devops team would do to operate a stateful app is now packed into a program that has the knowledge about how to deploy that specific application, how to create replicas, and how to recover when one replica fails.
+How do operator work
+Control loop mechanism: observe(did the replicas died did the app configuration change...), check the difference and then take action(create new replica, applies the up to date configuration)
+Makes use of CRDs: custom ressource definition(custom K8s component
+And on top of that it include the domain/app-specific
+knowledge to automate the entire lifecycle of the app it manages or operate
+Who create Operator?
+There are the operator SDK that allows developer to create operator themselves, or there are operator already built by expert and there available at operator hub
+
+Promotheus
+Promotheus server processes and trores metrics data and there is an Alertmanager that u can use to send alerts
+base on the data prometheus collect and proceesed
+graffan is a UI for data visualization
+how to deploy different parts on k8S cluster?
+1-using an operaator :Manager of all Promotheus components so in this method u have to find promotheus operator and deploy it in cluster
+2- using Helm chart to deploy operator(and its the most efficant one) promotheus operator has a helm chart that is maintained by helm community
+
+kubernetes cluster deployment best practices:
+-specify the pod image version
+-define pod liveness prob for each container(pod runs, but application inside is not in a healthy state), so that k8s restart automatically the pod(health check only after pod started)
+-define pod readiness for each container it let k8s know that the pod is ready to receive traffic, so in the first 2 minutes all the request will fail and u wil have a bunch of error(health check also)
+-more than 1 replica for deployment
+-using labels k8s ressources
+-using namespaces to isolate ur k8s ressorces from each other
+Security best practices
+-Ensuring that images are free from vulnerabilities
+-no route access previlages for containers
+-updating k8s to the latest version
+
+
+
+
+
+
+
+
+ 

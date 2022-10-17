@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    stages {
+        stage('npm install') {
+            steps {
+                echo 'installing the packages'
+                sh 'npm install'
+            }
+        }
+        stage('build image') {
+            steps {
+                echo 'Building the image'
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                    sh "docker build -t switch2mdock/delivmed:${BUILD_NUMBER} ."
+                    sh "echo $PASS | docker login -u $USER --password-stdin"
+                    sh "docker push switch2mdock/delivmed:${BUILD_NUMBER}"
+                }
+            }
+        }
+        stage('deplyement') {
+            steps {
+                echo 'deploying the project'
+                script {
+                    def dockercmd = 'docker run -p 3080:3080 switch2mdock/delivmed:${BUILD_NUMBER}'
+                    sshagent(['delivmed_webserver']) {
+                        sh "ssh —o StrictHostKeyChecking=no delivmed@20.216.187.35 ${dockercmd}"
+                    }
+                }
+            }
+        }
+    }
+}

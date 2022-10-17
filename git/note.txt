@@ -1,0 +1,23 @@
+working on a team best practice:
+often pulling and pushing code from the repo CONTINUOUS INTEGRATION
+git knows to merge changes automatically
+Merge conflicts appeared when same line was changed "it must be solved manualy
+Breaking changes = someone changes the code and the change affect the whole app from running
+Breaking changes doesn't affect you until you pulled the new code
+history of changes helps you avoid breaking changes by going back to the last version of the code which is  not affected by the last change
+git checkout -b <branchname> =creating a new branch
+git branch -d branch name :to delete a branch
+to avoid merge commit in gitlab commits we use git pull --rebase
+gitignore file allows you to list files or folders o be excluded
+git rm -r --cached <foldername> : tell git to stop tracking a file
+git status ; shows the local changes
+git stash = take the local working changes and hide them to let ccheckout to the master banch for example in an other way it will save current changes for later
+git stash pop = to get the changes back
+git log = get commits history
+HEAD mean the last commit
+DETACH means that the commit is not the latest
+git merge master : merger master branch in the actual branch where we are located
+
+
+
+

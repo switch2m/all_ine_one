@@ -1,0 +1,61 @@
+Terraform allows u to auomate and manage ur infrastructure its open source it used declarative language(you define the end state in ur config file)
+terraform is for infrstructure provisioning(creating VPC, spin up the servers, users and permissions, installing the deployment tools ..)
+Ansible vs Terraform
+Both are Infrastructure as code, both automate provisioning and managing the infrastructure
+HOWEVER TERRRAFORM IS MAINLY INFRASTRUCTURE PROVISIONING TOOL but it can also deploy application TERRAFORM IS RELATIVELY NEW AND ITS MORE ADVANCED IN ORCHESTRATION
+ANSIBLE IS MAINLY A CONFIGURATION TOOL (so one the infra is provisioned ansible can now be used to configure that infra, deploy apps, install/ update software) ANSIBLE ARE MORE MATURE
+TO WRAP UP :
+TERRAFORM IS BETTER TOOLS FOR INFRA
+ANSIBLE  IS BETTER TOOL FOR CONFIGURATION THAT INFRA
+TERRAFORM INFRASTRUCTURE
+ter has 2 main components
+	CORE and the core uses two input sources
+THE TF-config file and the STATE keep the 	current state how the infra looks like
+so it compare the state and the desired state 	in the TF-config file
+	PROVIDERS it gives to create infra on different cloud provider
+imperative:define exactly what to do
+
+tf file main component:
+Provider lets u connect to the cloud provider (it's like importing library or a dependency)
+Ressource let u create new ressources
+Data lets u query the existing resources on the cloud provider
+OUTPUT it help u get the value u want terraform to output for u like id of a resources 
+
+Terrraform generate terraform.tfstate file after every apply command  to keep track of the current state
+
+Output Values
+it help u get the value u want terraform to output for u like id of a resources(like a return function)
+
+Variables:
+variable = input variable
+variable "var name" {
+	description = "input var descripton"
+	default = "to assign a default value"
+	type = "to set a type for ur var"
+} but the best practice is defining a variable file with the default name terraform.tfvars
+usecase for input variable: REUSABILITY
+if we have config file that create a bunch of ressources if we want TO REPLICATE THE SAME EXACT INFRASTRUCTRURE FOR DIFFERENT ENVIRONEMENT 
+
+
+ENVIRONEMENT VARIABLE
+to define ur costum env var we run this command :
+export TF_VAR_envvar_name="env var content"
+and we have to reference it on the config file using variable component with the name given to <envvar_name>
+
+user_data attribute in cloud provider resource instance (like VM) allow u to execute a shell script on the resource
+terraform does not have any controll over what gonna happen next or how the shell command will be execute it cause it's not terraform who execute the command but the cloud provider and we won't have the status of these command (fail or succeded) PROVISIONNERS allow u also execute command and on the remote ressource created(virtual machine)
+Provisionners are not recommended by terraform(because it breaks the idempotency concept and terraform dosn't know what u executing) we can use user_data instead or idealy use a configuration management tools like ansible
+**idemptency something that gives u the same output no matter how u execute the command**
+
+
+
+
+
+
+
+
+
+
+
+
+
