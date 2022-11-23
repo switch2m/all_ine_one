@@ -41,7 +41,20 @@ so istio gateway run as a pod in ur cluster and acts as a loadbalancer by accept
 CRD:
 CRD Custom Resource Definition are custom kubernetes component that can be used to allow configuring this third party technologies using kubernetes yaml file
 
-
+Istio installation:
+in order to install istio we first had to make sure we have 6 core cpu and at least 8Gb of RAM
+fist we have to download the archive istio which contain the bin folder
+after that we extract it 
+then we have to add the binary executable istio folder path to the PATH env variable by running the following command
+in this example the bin istio folder exist on /home/azureuser/istio-1.16.0
+export PATH=$PATH:/home/azureuser/istio-1.16.0/bin
+after runing the cmd below we should have istioctl cli available on the machine
+then we run the following command to install all istio component
+istioctl install
+then to injects the envoy proxy in a deployed micro application
+we should run this command
+kubectl label namespace default istio-injection=enabled
+then we should redeploy the microservice application to see the changes
 
 
 
