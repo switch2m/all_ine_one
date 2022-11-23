@@ -55,6 +55,16 @@ then to injects the envoy proxy in a deployed micro application
 we should run this command
 kubectl label namespace default istio-injection=enabled
 then we should redeploy the microservice application to see the changes
+to install istio addons we should run the following command
+kubectl apply -f /home/azureuser/istio-1.16.0/samples/addons
+this command will install severel addons like:
+grafana & prometheus
+jaeger this is actualy a service for tracing microservices request
+zipkin is an alternative to jaeger
+kiali has an amazing data vizualistaion features as well as feature to configure ur microservice set up and communication
+
+
+
 
 
 
