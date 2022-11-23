@@ -90,6 +90,9 @@ to create docker volume we usualy use this command:
 docker run -v name:<container directo>
 
 NB : the RUN end the CMD command in the dockerfile execute any linux command on the container HOWEVER the COPY  commmand get executed on the machine host
-also the CMD command is an entry point so we can have multiple run commands with linux commands but CMD just one and that marks te entry ponit 
+also the CMD command is an entry point so we can have multiple run commands with linux commands but CMD just one and that marks te entry ponit
+
+Differences between CMD & ENTRYPOINT
+CMD commands are ignored by Daemon when there are parameters stated within the docker run command while ENTRYPOINT instructions are not ignored but instead are appended as command line parameters by treating those as arguments of the command.
 
 

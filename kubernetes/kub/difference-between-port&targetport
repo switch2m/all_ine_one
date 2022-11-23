@@ -1,0 +1,72 @@
+containerPort: should contain the port exposed"EXPOSE attribute" on the dockerFile of the app
+targetPort is the actual port on which your application is running inside the container in other word its the CONTAINERPORT. 
+Port: Some times your application inside container serves different services on a different port. 
+
+
+Service: This directs the traffic to a pod.
+
+TargetPort: This is the actual port on which your application is running inside the container.
+
+Port: Some times your application inside container serves different services on a different port.
+
+Example: The actual application can run 8080 and health checks for this application can run on 8089 port of the container. So if you hit the service without port it doesn't know to which port of the container it should redirect the request. Service needs to have a mapping so that it can hit the specific port of the container.
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: MyApp
+  ports:
+    - name: http
+      nodePort: 30475
+      port: 8089
+      protocol: TCP
+      targetPort: 8080
+    - name: metrics
+      nodePort: 31261
+      port: 5555
+      protocol: TCP
+      targetPort: 5555
+    - name: health
+      nodePort: 30013
+      port: 8443
+      protocol: TCP
+      targetPort: 8085 
+
+
+
+Service: This directs the traffic to a pod.
+
+TargetPort: This is the actual port on which your application is running inside the container.
+
+Port: Some times your application inside container serves different services on a different port.
+
+Example: The actual application can run 8080 and health checks for this application can run on 8089 port of the container. So if you hit the service without port it doesn't know to which port of the container it should redirect the request. Service needs to have a mapping so that it can hit the specific port of the container.
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: MyApp
+  ports:
+    - name: http
+      nodePort: 30475
+      port: 8089
+      protocol: TCP
+      targetPort: 8080
+    - name: metrics
+      nodePort: 31261
+      port: 5555
+      protocol: TCP
+      targetPort: 5555
+    - name: health
+      nodePort: 30013
+      port: 8443
+      protocol: TCP
+      targetPort: 8085 
+
+if you hit the my-service:8089 the traffic is routed to 8080 of the container(targetPort). Similarly, if you hit my-service:8443 then it is redirected to 8085 of the container(targetPort).
