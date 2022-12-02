@@ -1,4 +1,4 @@
-apiVersion: k8s.networking.io/v1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress
@@ -8,20 +8,19 @@ metadata:
 spec: 
   tls:
   - hosts:
-    - lmferbel.me
+      - lmferbel.me
     secretName: myapp-secret-tls
   rules:
-    host:
-    - name: lmferbel.me
-      http:
-        paths:
-        - path: "/"
-          pathType: Prefix
-          backend:
-            service: 
-              name: myapp-internal-service
-              port: 
-                number: 80
+  - host: lmferbel.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myapp-internal-service
+            port:
+              number: myapp-svc-port
 
 
 
