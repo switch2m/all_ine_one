@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: ingress
   annotations:
-  #for the nginx ingress controller
+    #nginx.ingress.kubernetes.io/rewrite-target: /$2  this is for redirection for example if we want redirect traffic that goes to specif path /auth/api to api for example in order to ensure that we should specify in this attribute /api/$2 it use regex
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   ingressClassName: nginx
@@ -15,7 +15,7 @@ spec:
   - host: lmferbel.me
     http:
       paths:
-      - path: /
+      - path: / #here for redirection example we should set it to /something/api(/|$)(.*)
         pathType: Prefix
         backend:
           service:
