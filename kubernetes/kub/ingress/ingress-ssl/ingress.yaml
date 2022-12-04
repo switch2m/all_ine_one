@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+  #for the nginx ingress controller
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+      - lmferbel.me
+    secretName: myapp-secret-tls
+  rules:
+  - host: lmferbel.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myapp-internal-service
+            port:
+              number: myapp-svc-port
+
+
+
+
+
