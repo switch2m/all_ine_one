@@ -46,6 +46,13 @@ spec:
       protocol: HTTP
     hosts:
       - "lmferbel.me"
+#here we can define another domaine
+#  - port:
+#      number: 80
+#      name: app2
+#      protocol: HTTP
+#    hosts:
+#      - "domaine2.me"
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
