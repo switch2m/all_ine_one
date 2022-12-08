@@ -38,3 +38,8 @@ Use Cases
     Use Startup Probe for applications that take longer to start.
     If your container needs to work on loading large data, configuration 
     files, or migrations during startup, you can use a startup probe.
+
+By combining liveness and readiness probes, you can instruct Kubernetes 
+to automatically restart pods or remove them from backend groups. If your
+app has a strict dependency on back-end services, you can implement both 
+liveness and readiness probes
