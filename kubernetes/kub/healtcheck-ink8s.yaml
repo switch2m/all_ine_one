@@ -1,0 +1,40 @@
+Kubernetes provides probes (health checks) to monitor and act on the state 
+of Pods and to make sure only healthy Pods serve traffic.
+there is 3 types of probes in k8s:
+
+livesness: let Kubernetes know whether your app inside the Pod is healthy,
+also it could catch a deadlock, where an application is running, but unable
+to make progress.
+livesness usecase:
+    Use Liveness Probe to remove unhealthy pods.
+    If you’d like your container to be killed and restarted if a probe fails,
+    then specify a liveness probe, and specify a restartPolicy of Always or
+    OnFailure.
+    Use a liveness probe for a container that can fail with no possible 
+    recovery.
+
+readiness: Readiness probes let Kubernetes know when your app running inside 
+the Pod is ready to serve traffic. it Indicates whether the container is 
+ready to respond to requests.
+k8S makes sure the readiness probe passes before allowing a service to send
+traffic to the pod.Unlike a liveness probe, a readiness probe doesn’t kill 
+the container. If the readiness probe fails, Kubernetes simply hides the 
+container’s Pod from corresponding Services, so that no traffic is 
+redirected to it.
+Liveness probes do not wait for readiness probes to succeed. but we can
+do that using initialDelaySeconds or startupProbe attribute.
+A side-effect of using Readiness Probes is that they can increase the time 
+it takes to update Deployments.
+Use Cases
+  Use Readiness Probe to detect partial unavailability.
+  If you’d like to start sending traffic to a Pod only when a probe succeeds,
+  specify a readiness probe.
+
+startup: Startup probes let Kubernetes know whether your app running inside 
+Pod has properly started.
+Startup probe has higher priority over the two other probe types. Until the
+startup Probe succeeds, all the other Probes are disabled.
+Use Cases
+    Use Startup Probe for applications that take longer to start.
+    If your container needs to work on loading large data, configuration 
+    files, or migrations during startup, you can use a startup probe.
