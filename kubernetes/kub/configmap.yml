@@ -4,3 +4,6 @@ metadata:
   name: mongodb-configmap
 data:
   database_url: name of the service connected to the pod
+
+#NOTE: when updating configmap config content the pods dosn't get the up-to-date data automatically, you will to restart the pods to see the changes
+

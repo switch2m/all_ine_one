@@ -1,0 +1,13 @@
+there is multiple types of resistent volume types:
+first one is the 
+hostPath: which is is a storage of the actual cluster local
+storage where the worker node exist its disadvantages is that it exists
+only in the node where the pod is running so if the pods goes down 
+and get rescheduled on a different node the data will not be Available
+
+the second is 
+emptyDir: which is suitable for multicontainer pod application
+the data in the volume is shared among all the defined pods within the 
+deployment containers field and can read/write same files is emptyDir volume
+the emptyDir will be empty whenever the pods restart and for that we don't
+need to define a persient volume or a persistentVolumeClaim
