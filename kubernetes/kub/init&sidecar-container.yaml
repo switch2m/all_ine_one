@@ -1,0 +1,55 @@
+usecase of sidecar containers:
+when u want to deploy a helper application that talk to authentification service to authentificate user for exeample 
+or to update the cache
+usecase of init containers:
+when u want to deploy a script before the application start-ups the script prepare and configure the environement before the application startup
+
+sidecar containers:
+as we khow we can configure multiple container in k8s deployment componenets inside the pod and those containers is defined as a sidecar containers
+THE SIDECAR CONTAINER CAN TALK TO EACH OTHER USING LOCALHOST AND THEY CAN SHARE THE DATA AMONG THEMSELVES
+sidecar containers run side-by-side with your main container and start ata the same time as the main container
+
+init containers:
+Run once in the begining and exits
+main container start afterwards
+its used to initialize somethinh on inside your pod
+
+sidecar containers and init containers example:
+---
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: simple-webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels: 
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp 
+    spec:
+      containers:
+        - name: main-application
+          image: nginx
+          volumeMounts:
+            - name: shared-logs
+              mountPath: /var/log/nginx
+        - name: sidecar-container
+          image: busybox
+          command: ["sh","-c","while true; do cat /var/log/nginx/access.log; sleep 30; done"]
+          volumeMounts:
+            - name: shared-logs
+              mountPath: /var/log/nginx
+          
+      initContainers:
+        - name: initContainer
+          image: busybox
+          command: ["sh", "ls"]
+      volumes:
+        - name: shared-logs
+          emptyDir: {}
+---
