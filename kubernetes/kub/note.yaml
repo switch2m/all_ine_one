@@ -55,7 +55,8 @@ have thousand of nodes in ur cluster runing on different regions, different OS..
 in this case we use *nodeAffinity* the affinity language is more expressive and allow u to 
 match rules more flexibly with logical operators 
 $kubectl get node --show-labels //shows all the node of ur cluster with all their labels
-$kubectl label node <node-name> <specify a rundom label could be a key value pair like type=cpu> //labels a node
+$kubectl label node <node-name> <specify a rundom label should be a key value pair like type=cpu> //labels a node
+kubectl label nodes <node-name> <label-key>=<label-value>
 ---
     example:
     ---
