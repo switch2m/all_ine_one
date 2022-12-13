@@ -7,7 +7,8 @@ the same Volume and data across all of them will be same.
 StatefulSet: is a Kubernetes resource used to manage stateful applications.
 It manages the deployment and scaling of a set of Pods, and provides 
 guarantee about the ordering and uniqueness of these Pods, unlike 
-Deployments it doesn’t create ReplicaSet(so u can't rollback to the previous version) rather itself creates the Pod 
+Deployments it doesn’t create ReplicaSet(so u can't rollback to the previous version)
+rather itself creates the Pod 
 with a unique naming convention. e.g. If you create a StatefulSet with name
 counter, it will create a pod with name counter-0, and for multiple replicas
 of a statefulset, their names will increment like counter-0, counter-1, etc
@@ -30,3 +31,46 @@ like:
     Logs Collection Daemon: You would want to export logs from all nodes 
     so you would need a DaemonSet of log collector like Fluentd to export
     logs from all your nodes.
+---
+ASSIGHINT PODS TO NODES
+Usecase Scenario:
+let's say u want to run an app that runs some data and cpu intensive process
+so u want to run those pods belonging to the service on two nodes in the cluster where no other 
+pods will run so they will get all the ressources
+
+Why are no pods get scheduled on the master node? is it possible to run a regular pod on the 
+master node as well
+as we khow pods are automatically scheduled on one the worker nodes and the schedular who
+decides intelligently on which worker node the pod would be scheduled based on te worker nodes 
+workload utiliaztion(least beasy and have more capacity).
+in Some cases we may want to decide ourselves where the pods would be scheduled
+and to make this happen there is three way:
+- using an attribute callled *nodeName* in the k8s configfile(deployment, pod, stateful...) 
+which value would be a specific node name
+- if the node names in the cluster are dynamic this is commun in cloud environement where u got 
+dynamicaly provisionned cluster node for that we could use a *nodeSelector* attribute and to do
+that we should first attach a label to the node where we want the pod to pd scheduled
+- if u want to use more flexible expressions to select the proper nodes this is useful when u 
+have thousand of nodes in ur cluster runing on different regions, different OS...
+in this case we use *nodeAffinity* the affinity language is more expressive and allow u to 
+match rules more flexibly with logical operators 
+$kubectl get node --show-labels //shows all the node of ur cluster with all their labels
+$kubectl label node <node-name> <specify a rundom label could be a key value pair like type=cpu> //labels a node
+---
+    example:
+    ---
+    apiVersion: v1
+    kind: Pod
+    metadata:
+    name: nginx
+    labels:
+        env: test
+    spec:
+    containers:
+    - name: nginx
+        image: nginx
+    nodeName: xxx #<specific_node_name>
+    #for dynamic cloud environement
+    nodeSelector:
+        type: cpu
+---
