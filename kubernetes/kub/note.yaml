@@ -51,12 +51,17 @@ which value would be a specific node name
 dynamicaly provisionned cluster node for that we could use a *nodeSelector* attribute and to do
 that we should first attach a label to the node where we want the pod to pd scheduled
 - if u want to use more flexible expressions to select the proper nodes this is useful when u 
-have thousand of nodes in ur cluster runing on different regions, different OS...
+have thousand of nodes in ur cluster runing on different regions, or let’s say we have different 
+kinds of workloads running in our cluster and we would like to dedicate, the data processing 
+workloads that require higher horsepower to the node that is configured with high or medium 
+resources, and here the node affinity comes into play.
 in this case we use *nodeAffinity* the affinity language is more expressive and allow u to 
-match rules more flexibly with logical operators 
+match affinity rules more flexibly with logical operators 
 $kubectl get node --show-labels //shows all the node of ur cluster with all their labels
 $kubectl label node <node-name> <specify a rundom label should be a key value pair like type=cpu> //labels a node
 kubectl label nodes <node-name> <label-key>=<label-value>
+
+
 ---
     example:
     ---
@@ -75,3 +80,35 @@ kubectl label nodes <node-name> <label-key>=<label-value>
     nodeSelector:
         type: cpu
 ---
+---
+example: nodeAffinity
+apiVersion: v1
+kind: Pod
+metadata:
+ name: dbapp
+spec:
+ containers:
+ - name: dbapp
+   image: db-processor
+ affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpresions:
+        - key: Size
+          operator: In #in will tell the scheduler to schedule this pods in the nodes specified on the values
+          # there is also notIn which will tell the schedular to not schedule the pods on the specified labeled node on the values attribute
+          # and there is also Exit which tell the schedular to check if the the label with key is exeisting and schedule the pod on it, and it dosen't need the values block attribute to be configured
+          values: # here we specify the value of the key-value pair of the label
+          - Large
+          - Medium
+          
+    #if the pod placement is less important than running the workload itself, in that case, we can set the affinity to the preferred type or in cases where a matching node is not found
+    preferredDuringSchedulingIgnoredDuringExecution: #The preferred one is a way of telling the scheduler, hey try your best to place the pod on the matching node defined on the required but if you really cannot find one just place it in here defined in the prefered.
+    - weight: 1
+      preference:
+        matchExpresions:
+          - key: xxx #another node key label
+            operator: In
+            value: 
+            - xxx #another node value label
