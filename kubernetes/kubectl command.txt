@@ -34,6 +34,9 @@ kubectl get node --selector='!node-role.kubernetes.io/control-plane'
 # Get all running pods in the namespace
 kubectl get pods --field-selector=status.phase=Running
 
+# command to filter the name of the running pods
+kubectl get pod -o jsonpath='{items[*].metadata.name}'
+
 # Get ExternalIPs of all nodes
 kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}'
 
