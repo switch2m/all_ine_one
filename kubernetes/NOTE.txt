@@ -34,6 +34,8 @@ The MASTER processes is responsible for managing processes (interacting with the
 	etcd: is the cluster brain it stores all the cluster changes(like history or logs of the cluster) it's a distributed reliable key-value store
 	kubeadm: is command line tool that helps u easily and quickly set up a cluster, it's used to configure various components like etcd, API server and the kubelet, its also used to upgrade
 	an existing cluster to add new nodes to a cluster.
+	kubelet: its node agent that runs on each node  in a cluster and is responsible for maintaining the disred state of the pods on that node.
+	it's communicate with the controller manager and the container runtime to ensure that the pods are runing as expected, it also communicate to the API server to provide information about the status of the node and its pods .
 
 Minikube and Kubectl
 ./Minkube: 1 node kubernetes cluster that runs in a virtuel box
