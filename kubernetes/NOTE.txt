@@ -31,7 +31,9 @@ The MASTER processes is responsible for managing processes (interacting with the
 	API Server: get the client request then validate it and then forward it to the other process
 	Schedular: decide on which node to schedule pod depending on the least busier node(response to the question what ressource are more available)
 	Controller mnager: detect state changes like crushing of pods. so if a pod died died controller manager detect that and make a request for schedular to restart the pod
-	etcd: is the cluster brain it stores all the cluster changes(like history or logs of the cluster)
+	etcd: is the cluster brain it stores all the cluster changes(like history or logs of the cluster) it's a distributed reliable key-value store
+	kubeadm: is command line tool that helps u easily and quickly set up a cluster, it's used to configure various components like etcd, API server and the kubelet, its also used to upgrade
+	an existing cluster to add new nodes to a cluster.
 
 Minikube and Kubectl
 ./Minkube: 1 node kubernetes cluster that runs in a virtuel box

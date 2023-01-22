@@ -77,22 +77,39 @@ specifies wich port the container is listening to the incoming requests and when
 
 
 Docker network
-the concept of docker network is that it creates its isolated docker network where the containers are running in so when we deployed two containers in the same docker network they can talk to each other using just the container name without localhost port number because they are in the same network and the app that run outside of docker like our node js wich just runs from node server its gonna connect to them from  the host using localhost and the port number
+the concept of docker network is that it creates its isolated docker 
+network where the containers are running in so when we deployed two 
+containers in the same docker network they can talk to each other using 
+just the container name without localhost port number because they are 
+in the same network and the app that run outside of docker like our 
+node js wich just runs from node server its gonna connect to them from  
+the host using localhost and the port number
 
 what does actually junkins do ?
-when it buils the app so the app so that javascript app using the npm build IT PACKAGES THEN IN DOCKER IMAGE AND THE PUSHES IT INTO A REPOSITORY.
+when it buils the app so the app so that javascript app using the npm build
+IT PACKAGES THEN IN DOCKER IMAGE AND THE PUSHES IT INTO A REPOSITORY.
 
 what is a Dockerfile ?
-In order to build a docker image from an app we basically have to copy the content of that app into the dockerfile it could an artifact that we build. so dockerFile is a blueprint for creating docker images
+In order to build a docker image from an app we basically have to copy 
+the content of that app into the dockerfile it could an artifact that 
+we build. so dockerFile is a blueprint for creating docker images
 
-Docker volumes are used for data persistance(data is gone when after restarting or removing a container) it's replicate container data to the host machine.
+Docker volumes are used for data persistance(data is gone when after 
+restarting or removing a container) it's replicate container data to 
+the host machine.
 to create docker volume we usualy use this command:
 docker run -v name:<container directo>
 
-NB : the RUN end the CMD command in the dockerfile execute any linux command on the container HOWEVER the COPY  commmand get executed on the machine host
-also the CMD command is an entry point so we can have multiple run commands with linux commands but CMD just one and that marks te entry ponit
+NB : the RUN end the CMD command in the dockerfile execute any linux command
+on the container HOWEVER the COPY  commmand get executed on the machine 
+host
+also the CMD command is an entry point so we can have multiple run commands 
+with linux commands but CMD just one and that marks te entry ponit
 
 Differences between CMD & ENTRYPOINT
-CMD commands are ignored by Daemon when there are parameters stated within the docker run command while ENTRYPOINT instructions are not ignored but instead are appended as command line parameters by treating those as arguments of the command.
+CMD commands are ignored by Daemon when there are parameters stated within 
+the docker run command while ENTRYPOINT instructions are not ignored but 
+instead are appended as command line parameters by treating those as
+arguments of the command.
 
 

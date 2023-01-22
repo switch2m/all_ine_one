@@ -1,5 +1,6 @@
 Service Mesh with sidecar:
-its concept is to extract all the non bisness logic out of the microservice and into in its own small sidecar application that:
+its concept is to extract all the non bisness logic out of the microservice
+and into in its own small sidecar application that:
 handles these network logic
 acts as a proxy
 its third party application
@@ -10,8 +11,11 @@ and the network layer for service to service communication consisting of control
 
 Service Mesh Core features: Traffic Split
 This features allows you to split traffic to a microservice 
-lets say we have a new version release of a payment microservice and we want to test it, we can't be sure that there is no bug,
-in this case we want to send for example just 10% percent of traffic to the new release and the rest of the previous stable release for period of time
+lets say we have a new version release of a payment microservice and 
+we want to test it, we can't be sure that there is no bug,
+in this case we want to send for example just 10% percent of traffic to 
+the new release and the rest of the previous stable release for period of 
+time
 to make sure it realy works
 so this feature helps u release a new version without worrying about breaking the application and its also known as Canary Deployment
 
@@ -19,7 +23,8 @@ Service Mesh is a Pattern or Paradigm and Istio is one of its implementaion
 
 Istio:
 in istio architecture the proxy are envoy proxy
-and the control plane component in istio is Istiod which manages and injects the envoy proxies in each of the microservices pod
+and the control plane component in istio is Istiod which manages and 
+injects the envoy proxies in each of the microservices pod
 what we can do with istio:
 traffic routing
 which service can communicate
@@ -29,16 +34,18 @@ there is two main CRD's for configuring the service to service communication:
   VirtualService: How to route the traffic to a specific service
   DestinationRule: Configure what happens to traffic for that destination(like what kind of loadbalancing to use to talk to the pods behind the destination service)
 let's get deep and dive into that
-DestinationRule: it is a way to group a service into subsets, u can take a
-k8s service and patrition it however u want, in this example we gonna see a
+DestinationRule: allow us to create routing policies to apply to traffic 
+bound for a particular service, and to logically group instances of that
+service into subsets.it is a way to group a service into subsets, u can take
+a k8s service and patrition it however u want, in this example we gonna see a
 partition based on version, and this destination rule backs a VirtualService
 ***
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name:
+  name: <name>
 spec:
-  host:
+  host: servicename
   subsets:
   - name: v1
     labels:
@@ -52,6 +59,7 @@ in this example the request that has foo:bar1 goes to the frontend v1
 and all the other request goes to frontend v2
 ***
 apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
 metadata:
   name: frontend
 spec:
@@ -71,8 +79,8 @@ spec:
         host: frontend
         subset: v2
 
-VertualService is the way that u list rules, so in this example here we are going to
-do traffic split Demo
+VertualService is the way that u list rules, so in this example here we are
+going to do traffic split Demo
 ***
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService

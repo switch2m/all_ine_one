@@ -1,6 +1,6 @@
 Ansible is a tool to automate it tasks(like repetitive tasks, update docker versions on all servers) this could be done in several ways
 ./execute tasks remotly from ur own machine
-./write the whle configurations on a single yaml file
+./write the whole configurations on a single yaml file
 ./ reuse same file multiple time as needed
 ./ more reliable and less likely to make errors
 How ansible work
