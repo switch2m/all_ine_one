@@ -4,3 +4,15 @@ if the nod has come back to run correctly we  use the following command to reloc
 $kubectl uncordon <node-name>
 to mark the node unsheduable e use the folowing command
 $kubectl cordon <node-name>
+when it comes to upgrading the cluster :
+we upgrade step by step to the version we want by successively incrementing the minor version of the cluster version 
+we upgrade cluster version either by using:
+cloud provider service ui 
+kubadm 
+in the upgrading process we start first by upgrading the master first then the worker node
+there are different strategies to upgrade the worker node:
+-upgrade all at once it requires downtime
+-ugrade one node(after drain it of course) at time untill we have all the nodes upgraded
+-add new nodes with the desired kubernetes version on it and move the workloads over to the new nodes and remove the old nodes
+
+
