@@ -1,0 +1,6 @@
+to move pods located on a a node to another node we should run the following coammand:
+$kubectl drain <node-name>
+if the nod has come back to run correctly we  use the following command to relocate their pods to the node back
+$kubectl uncorden <node-name>
+to mark the node unsheduable e use the folowing command
+$kubectl corden <node-name>
