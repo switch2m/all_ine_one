@@ -14,5 +14,12 @@ there are different strategies to upgrade the worker node:
 -upgrade all at once it requires downtime
 -ugrade one node(after drain it of course) at time untill we have all the nodes upgraded
 -add new nodes with the desired kubernetes version on it and move the workloads over to the new nodes and remove the old nodes
+USing kubeadm upgrading command:
+first we should drain the node which we want to upgrade by runing $kubectl drain <node-name>
+then we upgrade the version of kubeadm using the command $apt install -y kubeadm=<version>-00
+after that we upgrade the master node first using this command: $kubeadm upgrade apply <version>
+then we have to make sure to upgrade kubelet version on the master node using the following command: $apt-get install -y kubelet=<version>-00
+(*)and then we run the command to upgrade the master node: $kubeadm upgrade apply <version>
+for the worker nodes we change just the last step (*) by runing instead: $kubeadm upgrade node
 
 
