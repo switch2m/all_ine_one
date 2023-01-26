@@ -8,5 +8,5 @@ the second type of encryption is called asymetric encryption and it uses two key
 public key u can only decryted with the private key, ssh protocol uses asymetric encryption, in websites which uses the https the communication is secure throught openssl and tls protocol
 the ebserver sent its public key to the user to encrypt the its data and then this data is sent and decrypted using the private key of the webserver related whith the public key already already 
 sent.
-
+NOTE THAT WE CAN ENCRYPT DATA WITH THE PRIVATE AND THE PUBLIC KEY 
 
