@@ -14,3 +14,12 @@ there is three type of certidiacte:
 root certificate: which is used to valid server  certificate 
 server certificate: servers use their private and public key to secure its connectivity
 Client certficate: server request a client to verify themselves to verify themselves
+
+generate cetififcate:
+for this blog we gonna use openssl
+$openssl genrsa -out ca.key 4096 or $openssl genpkey -algorithm RSA -out private_key.pem this comamnd is used to generate private key
+$openssl req -new -key private_key.pem -subj "/CN=KUBERNETES-CA" -out csr.pem is used to generate a self-signed request 
+$openssl x509 -req -days 365 -in csr.pem -signkey private_key.pem -out certificate.pem is used to sign a certificate
+
+
+
