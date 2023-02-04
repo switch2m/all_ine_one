@@ -10,3 +10,7 @@ the ebserver sent its public key to the user to encrypt the its data and then th
 sent.
 NOTE THAT WE CAN ENCRYPT DATA WITH THE PRIVATE AND THE PUBLIC KEY 
 
+there is three type of certidiacte:
+root certificate: which is used to valid server  certificate 
+server certificate: servers use their private and public key to secure its connectivity
+Client certficate: server request a client to verify themselves to verify themselves
