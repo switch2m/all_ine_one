@@ -20,6 +20,6 @@ for this blog we gonna use openssl
 $openssl genrsa -out ca.key 4096 or $openssl genpkey -algorithm RSA -out private_key.pem this comamnd is used to generate private key
 $openssl req -new -key private_key.pem -subj "/CN=KUBERNETES-CA" -out csr.pem is used to generate a self-signed request 
 $openssl x509 -req -days 365 -in csr.pem -signkey private_key.pem -out certificate.pem is used to sign a certificate
-
+$openssl x509 -in /certifPath/certfile.crt -text -noout is used to view info about the certificate 
 
 
