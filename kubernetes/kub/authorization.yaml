@@ -1,0 +1,3 @@
+apiGroup: kubectl api-resources, there multiple apiGroups in k8s such as core, apps...
+kubeconfig file contains info about the cluster: there is 3 important field in the kubeconfig file cluster, contexts, users
+
