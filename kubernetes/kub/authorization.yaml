@@ -1,3 +1,59 @@
 apiGroup: kubectl api-resources, there multiple apiGroups in k8s such as core, apps...
 kubeconfig file contains info about the cluster: there is 3 important field in the kubeconfig file cluster, contexts, users
+securityContexts: allow u to specify the user which the container/pod will startup and execute command on itwe can use the capabilities field to add or delete
+privileges to the current user of the container
+We specify the securitycontext in the pod level definition here is an example:
+########## it could be a pod/deploy/stafulset
+spec:
+  containers:
+    - name: example-container
+      image: nginx
+      securityContext:
+        runAsUser: 1001
+        capabilities:
+          add:
+            - NET_ADMIN
+            - SYS_TIME
+          drop:
+            - KILL
+networkPolicies:
+################
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pods-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      name: pod1
+  policyTypes:
+  - ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: myapp-frontend
+    ports:
+    - port: 8080
+  -from:
+    - ipBlock: # we use it from connection to servers or webservers
+        cidr: 0.0.0.0/0
+    ports:
+    - port: 8080
+  egress:
+  - to:
+    - podSelector:
+        matchLabels: # for this to work we should label our pods before
+          name: pod2
+    ports:
+    - port: 8080
+  
+  - to:
+    - podSelector:
+        matchLabels:
+          name: pod3
+    ports:
+    - port: 3306
 
