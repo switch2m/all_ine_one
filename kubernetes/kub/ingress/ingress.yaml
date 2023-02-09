@@ -53,3 +53,9 @@ spec:
             name: app
             port:
               number: 80
+    defaultBackend: # this one is used for the default backend
+    service:
+      name: default-service
+      port:
+        name: http
+        
