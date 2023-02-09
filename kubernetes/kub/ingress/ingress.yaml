@@ -42,6 +42,8 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
+  #- host: *
+  #here if we dont't specify the host field is gonna take its default value which is * and it mean match any host
   - http:
       paths:
       - path: "/"
