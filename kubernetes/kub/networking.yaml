@@ -47,3 +47,5 @@ its used some plugins like flannel weavenet bridge...the specific plugin used in
 and the desired network configuration and security policies.
 the kubelet is the responsible for creating containers on the pod and on the kubelet.service file we find the cni that been used with more details
 
+services are cluster wide concept: when we create a service object it is assigned an ip address from a predifined range the kube-proxy object get that ip addr and 
+create forwording rules on each node on the cluster
