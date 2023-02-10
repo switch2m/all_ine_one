@@ -41,4 +41,9 @@ and take the output of the command and run the following command:
 ip -n <net ns id> addr
 or use the docker inspect command
 
-CNI container network interface
+CNI container network interface is a network interface that provides network connectivity to containers running in a container runtime, such as Docker or Containerd. 
+The main goal of CNI is to standardize the way that containers connect to the network 
+its used some plugins like flannel weavenet bridge...the specific plugin used in a given deployment will depend on the network requirements of the containers,
+and the desired network configuration and security policies.
+the kubelet is the responsible for creating containers on the pod and on the kubelet.service file we find the cni that been used with more details
+
