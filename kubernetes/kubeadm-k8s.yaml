@@ -48,6 +48,41 @@ kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl versio
 the final step is to join the worker nodes to the master node:
 here we should paste the Join command from the above kubeadm init output
 $kubeadm join 10.128.0.9:6443 --token 21dg74.rkaqfcksuut150xm \
->         --discovery-token-ca-cert-hash sha256:69cffbab4446f21047711bd074074747daa4211508c973931c0c7f177db4f108
+>         --discovery-token-ca-cert-hash sha256:69cffbab4446f21047711bd07407474LETS 7daa4211508c973931c0c7f177db4f108
  and finaly check the cluster node state by running this command
  $ kubectl get nodes -o wide
+
+IN CASE OF SEETTING UP A HIGHLY AVAILABLE CLUSTER THE APPROCH REMAIN THE SAME THE DIFFERENCE IS THAT HERE WE USE A LOAD BALANCER TO SPLIT THE TRAFFIC TO THE MASTER NODES:
+here we go by the STACKED ETCD-cluster lets say we have 7 node 3 masters 3 corkers and one server configured as a loadbalancer so first we start by configuring 
+the load balancer in this example we used HAproxy we configured the config file of the HAproxy as below to distribute incomming traffic to the master nodes
+global
+   ..........
+defaults
+   ..........
+frontend  kubernetes
+    bind 10.30.12.22:6443
+    default_backend kubernetes-master-nodes
+    option tcplog
+    mode tcp
+backend kubernetes-master-nodes
+    mode tcp
+    balance     roundrobin #the balance roundrobin directive specifies that the incoming traffic should be balanced among the servers using a round-robin algorithm
+    server  knode1 10.30.25.81:6443 check fall 3 rise 2 #The check directive is used to configure the health check for each server. In this example,
+    server  knode2 10.30.25.82:6443 check fall 3 rise 2 #the health check will check the server every two seconds if it's up and healthy, 
+    server  knode3 10.30.25.83:6443 check fall 3 rise 2 #and if the server fails three consecutive checks, it will be marked as down.
+ the we should restart Hproxy to apply the config $sudo systemctl restart haproxy
+ after that we follow the same approche described before:
+ adding netfilter to all node install docker runtime
+ then in the third step we should ssh to one of the master node(also we may need to run this"$ update-alternatives --set iptables /usr/sbin/iptables-legacy" also) and initialize the cluster with the following command:
+ sudo kubeadm init --control-plane-endpoint "10.30.12.22:6443" --upload-certs #the diff is that we added the controlplane endpoint to point the loadbalancer server
+ then the output gonna provide us with to command one for joining the master node and it should be run on the master node and the other one should be run on  the 
+ worker nodes
+ and installing the network adds-on on each node of the cluster and cp the config file to $home/.kube dir as done before
+ and its all up 
+ For external etcd follow the instructions describeded on the kubernetes official docs
+ https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
+ https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
+ 
+ 
+ 
+ 
