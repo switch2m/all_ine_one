@@ -1,3 +1,7 @@
+JSONPATH queries
+kubectl get pv -o jsonpath='{.items[*].spec.capacity.storage}'
+kubectl get pv --sort-by=.spec.capacity.storage -o custom-columns=NAME:metadata.name,CAPACITY:.spec.capacity.storage > /opt/outputs/pv-and-capacity-sorted.txt
+kubectl config view --kubeconfig=my-kube-config -o jsonpath="{.contexts[?(@.context.user=='aws-user')].name}" checks the list of items on the contexts list if there is a context with the user attribute set to aws-user if there is oone it outputs its name
 # Get commands with basic output
 kubectl get services      # List all services in the namespace
 kubectl get pods --all-namespaces             # List all pods in all namespaces
