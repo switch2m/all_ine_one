@@ -13,4 +13,4 @@ we use it for exmaple to update the k8s manifest file(update for example the ima
 ###Images
 
 Image:
-https://github.com/switch2m/all_ine_one/blob/main/linux%20&%20OS/change-image-tag.png?raw=true
+![image](https://user-images.githubusercontent.com/72983573/219065271-d939b6f2-1a42-4153-8a8b-c04ee4256e94.png)
