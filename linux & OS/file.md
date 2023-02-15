@@ -8,7 +8,8 @@ some of the sed usefull commands
 - In the sed command, the % character can be used instead of the forward slash / as a delimiter to specify the pattern to search for. 
 The % character is often used as an alternative delimiter when the pattern to search for contains forward slashes.
 - usecase scenario:
-we use it for exmaple to update the k8s manifest file(update for example the image been used on a deployment) checkout the change ima
+we use it for exmaple to update the k8s manifest file(update for example the image been used on a deployment) checkout the change amde for the image attribute on 
+the k8s manifest file
 
 ###Images
 
