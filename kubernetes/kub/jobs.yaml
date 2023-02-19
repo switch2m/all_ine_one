@@ -1,0 +1,4 @@
+Jobs are used to run a set of pod to perform a given task to Completion
+A job creates one or more Pods and will continue to retry execution of the Pods until a specified number of them successfully terminate. 
+As pods are completed, the Job tracks the successful completions
+A Cron Job creates Jobs on a time-based schedule, it runs a job periodically on a given schedule.u need a working K8s cluster at version>= 1.8 (for CronJob).
