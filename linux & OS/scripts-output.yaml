@@ -1,0 +1,5 @@
+on a linux script the exit 0 means that the script runs successfuly
+and non-zero output means that the script failed and  indicates that an error occurred.
+#!/bin/bash
+mysqladmin ping -u root -p{mysql_root_password} -h galera2.0 2>/dev/null #in this line its trying to establish/check a mysql connection to the host galera2.0 and redirect the status of execution to the command below it( send a ping request to the MySQL server running on the host "galera2.0")
+GALERA2UP=$ # store the exit status of the previous command
