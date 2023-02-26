@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rsyslog
+  labels:
+    app: rsyslog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rsyslog
+  template:
+    metadata:
+      labels:
+        app: rsyslog
+    spec:
+      serviceAccountName: audit-sa
+      containers:
+      - name: rsyslog
+        image: sudheerc1190/rsyslog:latest
+        ports:
+        - containerPort: 514
+      - name: busybox
+        image: yauritux/busybox-curl:latest
+        command:
+        - sleep
+        - "7600"
+        - "/bin/sh"
+        - "-c"
+        - "curl -o logapp.log -H 'Authorization: Bearer $(cat /opt/token)' https://10.245.0.1:443/api/v1/namespaces/default/pods/log-app-67b6c594cb-tmtpz/log"
+        volumeMounts:
+          - name: sa-token
+            mountPath: /opt/token
+      volumes:
+        - name: sa-token
+          secret:
+            secretName: auditsa-secret
