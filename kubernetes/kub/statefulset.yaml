@@ -44,12 +44,27 @@ spec:
           claimName: myclaim
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: example-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  nfs: #here we specify the type of volumes we wanna use (hostPath, emptyDir, awsBlockStorage, AzureDisk...)
+    path: /exported/path #this is the required field the below field depends on the type of volume we r using
+    server: nfs.example.com 
+---
+apiVersion: v1
 kind: persistentVolumeClaim
 metadata:
   name: myclaim
 spec:
   accessModes: [ "ReadWriteMany" ]
-  storageClassName: "reference the storage-class if created" #look the exeample
+  storageClassName: "reference the storage-class if created from where u want to claim the storage" #look the exeample
+  volumeName: "here we specify the persistentVolume from where we wanna claim that storage"
   resources:
     requests:
       storage: 1Gi

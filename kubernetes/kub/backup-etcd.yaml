@@ -1,0 +1,126 @@
+to backup etcd server there is several methods:
+./ use etcdctl snapshot save command
+./ using k8s operator using CRDs (etcd.database.coreos.com/v1beta2)
+./ use Valero  popular backup and restore tool for Kubernetes that can be used to backup etcd data.it supports incremental backups, which can 
+reduce the backup time and storage requirements
+
+for the second method here is an example:
+    Install the Operator:
+
+The first step is to install the etcd Backup Operator on your Kubernetes cluster. You can use the following command to install 
+the Operator using the Helm package manager
+#############
+helm repo add etcd-backup-operator https://raw.githubusercontent.com/coreos/etcd-backup-operator/master/charts
+helm install etcd-backup-operator etcd-backup-operator/etcd-backup-operator
+#############
+    Configure the backup location:
+
+Next, you need to configure the backup location. You can create a Kubernetes ConfigMap that includes the backup location and other 
+backup configuration parameters. Here is an example ConfigMap:
+#############
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: etcd-backup-config
+data:
+  backup-location: s3://my-s3-bucket/etcd-backup/
+  backup-schedule: "@every 6h"
+#############
+In this example, the backup location is set to an S3 bucket named my-s3-bucket, and the backup schedule is set to every 6 hours.
+You can reference this ConfigMap in the EtcdBackup Custom Resource.
+
+    Configure the backup schedule:
+
+Next, you need to create an EtcdBackup Custom Resource that specifies the backup schedule and other backup parameters. 
+Here is an example EtcdBackup Custom Resource:
+#############
+apiVersion: "etcd.database.coreos.com/v1beta2"
+kind: "EtcdBackup"
+metadata:
+  name: "example-backup"
+spec:
+  backupConfigMap: "etcd-backup-config"
+  backupName: "example-backup-1"
+  keep: 5
+#############
+In this example, the EtcdBackup Custom Resource specifies the backup location and schedule using the ConfigMap named etcd-backup-config. 
+The backup name is set to example-backup-1, and the Operator is configured to keep 5 backups.
+
+    Verify the backups:
+
+You should regularly verify the backups to ensure that they are working correctly. You can verify the backups by restoring the data from 
+a backup and verifying that the data is correct.
+
+    Restore the data:
+
+In case of a disaster, you can restore the etcd data using the EtcdRestore Custom Resource. Here is an example EtcdRestore Custom Resource:
+#############
+apiVersion: "etcd.database.coreos.com/v1beta2"
+kind: "EtcdRestore"
+metadata:
+  name: "example-restore"
+spec:
+  backupName: "example-backup-1"
+#############
+In this example, the EtcdRestore Custom Resource specifies the backup name to restore, which is set to example-backup-1. The Operator automates
+the restore process, including creating a new etcd cluster and restoring the data from the backup.
+******************
+******************
+USING VALLERO
+    Install Velero:
+
+The first step is to install Velero on your Kubernetes cluster. You can install Velero using the following command:
+############
+velero install \
+    --provider aws \
+    --plugins velero/velero-plugin-for-aws:v1.2.0 \
+    --bucket <s3-bucket-name> \
+    --backup-location-config region=<aws-region> \
+    --snapshot-location-config region=<aws-region> \
+    --secret-file <path-to-aws-credentials> \
+    --wait
+
+This command installs Velero on your Kubernetes cluster and configures it to use AWS S3 for backup storage.
+
+    Create an etcd backup:
+
+To create an etcd backup, you can use the Velero CLI to create a backup of the etcd data. Here is an example command to create an etcd backup:
+#############
+velero backup create <backup-name> \
+    --include-namespaces <namespace> \
+    --selector 'etcd-cluster=<etcd-cluster-name>'
+
+In this example, replace <backup-name> with a name for the backup, <namespace> with the namespace where the etcd cluster is running, and 
+<etcd-cluster-name> with the name of the etcd cluster.
+
+    Verify the etcd backup:
+
+To verify the etcd backup, you can use the Velero CLI to list the backups and view the backup details. Here is an example command to list the backups:
+#############
+velero backup get
+
+You can view the backup details by running the following command:
+#############
+velero backup describe <backup-name>
+
+    Restore the etcd backup:
+
+To restore the etcd backup, you can use the Velero CLI to restore the etcd data. Here is an example command to restore the etcd backup:
+#############
+velero restore create --from-backup <backup-name> \
+    --include-namespaces <namespace> \
+    --selector 'etcd-cluster=<etcd-cluster-name>'
+
+In this example, replace <backup-name> with the name of the backup created in step 2, <namespace> with the namespace where the etcd cluster 
+is running, and <etcd-cluster-name> with the name of the etcd cluster.
+
+Velero supports incremental backups by default, which means that it only backs up data that has changed since the last backup. To enable incremental 
+backups for an etcd cluster, you can use the --ttl flag when creating the backup.
+
+Here's an example command to create an incremental backup of an etcd cluster using Velero:
+#############
+velero backup create <backup-name> \
+    --include-namespaces <namespace> \
+    --selector 'etcd-cluster=<etcd-cluster-name>' \
+    --ttl 24h
+

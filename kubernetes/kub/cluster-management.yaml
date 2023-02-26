@@ -1,0 +1,25 @@
+to move pods located on a a node to another node we should run the following coammand:
+$kubectl drain <node-name>
+if the nod has come back to run correctly we  use the following command to relocate their pods to the node back
+$kubectl uncordon <node-name>
+to mark the node unsheduable e use the folowing command
+$kubectl cordon <node-name>
+when it comes to upgrading the cluster :
+we upgrade step by step to the version we want by successively incrementing the minor version of the cluster version 
+we upgrade cluster version either by using:
+cloud provider service ui 
+kubadm 
+in the upgrading process we start first by upgrading the master first then the worker node
+there are different strategies to upgrade the worker node:
+-upgrade all at once it requires downtime
+-ugrade one node(after drain it of course) at time untill we have all the nodes upgraded
+-add new nodes with the desired kubernetes version on it and move the workloads over to the new nodes and remove the old nodes
+USing kubeadm upgrading command:
+first we should drain the node which we want to upgrade by runing $kubectl drain <node-name>
+then we upgrade the version of kubeadm using the command $apt install -y kubeadm=<version>-00
+after that we upgrade the master node first using this command: $kubeadm upgrade apply <version>
+then we have to make sure to upgrade kubelet version on the master node using the following command: $apt-get install -y kubelet=<version>-00
+(*)and then we run the command to upgrade the master node: $kubeadm upgrade apply <version>
+for the worker nodes we change just the last step (*) by runing instead: $kubeadm upgrade node
+
+

@@ -184,3 +184,35 @@ If you want to allow your pod to tolerate every node taint then inside the
 pod toleration’s part, you should mention only the operator "Exists" .
 By defining this your pod able will tolerate every taint which was applied 
 on the node.
+
+Pod AntiAffinity
+ensuring certain pods don’t run on the same node as other pods. 
+We are going to use this to make sure our pods that run the same application are spread among multiple nodes.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: green
+  labels:
+    app: green
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: green
+  template:
+      labels:
+        app: green
+    spec:
+      containers:
+      - name: green
+        image: green:latest
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: green
+              topologyKey: "kubernetes.io/hostname"

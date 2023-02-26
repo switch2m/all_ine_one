@@ -1,0 +1,25 @@
+tls certificate ensure that the communication between the client and  the webserver is encrypted
+fo example when u authentificate to a website, if the website doesn't use TLS certificate then the credenetials could be exposed and accesible
+if the hacker was sniffing the traffic of the request so we should encrypt this communication 
+there two type of encryption:
+the data is encrypted using a key and sent to the webserver and in order to to decrypt the data  for the webserver, they need  the key to do that, so a copy of it would
+be sent to the webserver and this type of encryption is callled symetric encryption and its less secure since it use the same key for encrypt and decrypt the data 
+the second type of encryption is called asymetric encryption and it uses two keys, the private and th, public key for encryption and for decryption, if u encrypt the data with 
+public key u can only decryted with the private key, ssh protocol uses asymetric encryption, in websites which uses the https the communication is secure throught openssl and tls protocol
+the ebserver sent its public key to the user to encrypt the its data and then this data is sent and decrypted using the private key of the webserver related whith the public key already already 
+sent.
+NOTE THAT WE CAN ENCRYPT DATA WITH THE PRIVATE AND THE PUBLIC KEY 
+
+there is three type of certidiacte:
+root certificate: which is used to valid server  certificate 
+server certificate: servers use their private and public key to secure its connectivity
+Client certficate: server request a client to verify themselves to verify themselves
+
+generate cetififcate:
+for this blog we gonna use openssl
+$openssl genrsa -out ca.key 4096 or $openssl genpkey -algorithm RSA -out private_key.pem this comamnd is used to generate private key
+$openssl req -new -key private_key.pem -subj "/CN=KUBERNETES-CA" -out csr.pem is used to generate a self-signed request 
+$openssl x509 -req -days 365 -in csr.pem -signkey private_key.pem -out certificate.pem is used to sign a certificate
+$openssl x509 -in /certifPath/certfile.crt -text -noout is used to view info about the certificate 
+
+

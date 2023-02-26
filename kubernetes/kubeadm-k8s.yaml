@@ -1,0 +1,88 @@
+to spin up a cluster from scratch using kubeadm we fellow the steps describeded below:
+-/ "ADD THE NETFILTER MODULE"
+-/ "INSTALLING DOCKER RUNTIME on each cluster node"
+-/ "INSTALLING KUBEADM KUBECTL KUBELET TOOLS ON EACH NODE"
+-/ "INITIALIZE THE CONTOLPLANE"
+-/ "INSTALL POD NETWORK ADDS-ON flannel for example"
+-/ "JOIN THE WORKER NODES "
+NOTE that all the nodes should be in the same network
+Disable the swap and make sure be a net filter module is installed.
+we will need to install the container runtime interface ie. docker
+Install kubeadm, kubelet, and kubectl kubeadm is building tools that help to bootstrap the cluster,
+kubelet is an agent that runs on each node to make sure that containers are running in a Pod,
+kubectl allows you to run commands against Kubernetes clusters.
+Initialize the Kubernetes cluster which creates certificates, pods, services, and other resources.
+Installing wave network add-on.
+Finally, join the worker nodes to the Kubernetes cluster.
+for the first step we should first run this two commands to make sure if the netfilter module is already available if so the command gonna return an output:
+$lsmod | grep br_netfilter 
+$sudo modprobe br_netfilter
+if there is no output so we should add the module by running the following command 
+$cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+$sudo sysctl --system
+for the second step we should refer to the docs foolow the instalation guide off the tool we choose to use lets say containerd for example:
+> apt update
+> apt install containerd -y
+the third step is to install kubeadm and kubectl and kubelet on each node:
+$sudo apt-get update
+$sudo apt-get install -y apt-transport-https ca-certificates curl
+$sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg # for this command if the dir /etc/apt/keyrings doesn't exist u should create it
+$echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+$sudo apt-get update
+$sudo apt-get install -y kubelet kubeadm kubectl
+$sudo apt-mark hold kubelet kubeadm kubectl
+the forth step which consist of initializing the controlplane consist of the following:
+> kubeadm init --cri-socket /run/containerd/containerd.sock --pod-network-cidr=10.0.0.0/16 --apiserver-advertise-address=<controlplane_ip> #If you don't specify a runtime, kubeadm automatically tries to detect an installed container runtime by scanning through a list of known endpoints.
+to get controlplane ip run $ifconfig (eth0) command on the master host machine
+and we specify the range of ips the pods gonna get for example 10.0.0.0/16 
+after that we will be demanded to execute the following commands
+$ mkdir -p $HOME/.kube
+$ cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+$ chown $(id -u):$(id -g) $HOME/.kube/config
+The fifth step is to install pod network adds-on:
+here we used weave as an example
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+the final step is to join the worker nodes to the master node:
+here we should paste the Join command from the above kubeadm init output
+$kubeadm join 10.128.0.9:6443 --token 21dg74.rkaqfcksuut150xm \
+>         --discovery-token-ca-cert-hash sha256:69cffbab4446f21047711bd07407474LETS 7daa4211508c973931c0c7f177db4f108
+ and finaly check the cluster node state by running this command
+ $ kubectl get nodes -o wide
+
+IN CASE OF SEETTING UP A HIGHLY AVAILABLE CLUSTER THE APPROCH REMAIN THE SAME THE DIFFERENCE IS THAT HERE WE USE A LOAD BALANCER TO SPLIT THE TRAFFIC TO THE MASTER NODES:
+here we go by the STACKED ETCD-cluster lets say we have 7 node 3 masters 3 corkers and one server configured as a loadbalancer so first we start by configuring 
+the load balancer in this example we used HAproxy we configured the config file of the HAproxy as below to distribute incomming traffic to the master nodes
+global
+   ..........
+defaults
+   ..........
+frontend  kubernetes
+    bind 10.30.12.22:6443
+    default_backend kubernetes-master-nodes
+    option tcplog
+    mode tcp
+backend kubernetes-master-nodes
+    mode tcp
+    balance     roundrobin #the balance roundrobin directive specifies that the incoming traffic should be balanced among the servers using a round-robin algorithm
+    server  knode1 10.30.25.81:6443 check fall 3 rise 2 #The check directive is used to configure the health check for each server. In this example,
+    server  knode2 10.30.25.82:6443 check fall 3 rise 2 #the health check will check the server every two seconds if it's up and healthy, 
+    server  knode3 10.30.25.83:6443 check fall 3 rise 2 #and if the server fails three consecutive checks, it will be marked as down.
+ the we should restart Hproxy to apply the config $sudo systemctl restart haproxy
+ after that we follow the same approche described before:
+ adding netfilter to all node install docker runtime
+ then in the third step we should ssh to one of the master node(also we may need to run this"$ update-alternatives --set iptables /usr/sbin/iptables-legacy" also) and initialize the cluster with the following command:
+ sudo kubeadm init --control-plane-endpoint "10.30.12.22:6443" --upload-certs #the diff is that we added the controlplane endpoint to point the loadbalancer server
+ then the output gonna provide us with to command one for joining the master node and it should be run on the master node and the other one should be run on  the 
+ worker nodes
+ and installing the network adds-on on each node of the cluster and cp the config file to $home/.kube dir as done before
+ and its all up 
+ For external etcd follow the instructions describeded on the kubernetes official docs
+ https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
+ https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
+ 
+ 
+ 
+ 

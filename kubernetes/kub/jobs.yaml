@@ -1,0 +1,53 @@
+Jobs are used to run a set of pod to perform a given task to Completion
+A job creates one or more Pods and will continue to retry execution of the Pods until a specified number of them successfully terminate. 
+As pods are completed, the Job tracks the successful completions
+A Cron Job creates Jobs on a time-based schedule, it runs a job periodically on a given schedule.u need a working K8s cluster at version>= 1.8 (for CronJob).
+Job yaml file example
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: x-job
+spec:
+  template:
+    parallelism: 3 #The number of pods to run in parallel (simultanuasly)
+    completions: 3 #The number of completions required for the job to be considered successful. (its retries till 3 pod get runing successfuly)
+    activeDeadlineSeconds: 600 #The maximum amount of time the job can run before being terminated.
+    metadata:
+      name: x-job
+  containers:
+  - name: busybox
+    image: busybox
+    command:
+        - /bin/sh
+        - -c
+        - "while true; do wget -q -O- http://www.example.com && break; done"
+    restartPolicy: Never
+########################
+########################
+CronJob yaml file example 
+CronJob that create backups for a mysql database
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: db-backup
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: db-backup
+            image: mysql:8
+            command: ["mysqldump", "-u", "root", "-p", "mydb", ">", "/backups/mydb.sql"]
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backups
+          restartPolicy: OnFailure
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: db-backup-pvc
+    

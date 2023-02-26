@@ -1,0 +1,1 @@
+for creating new pv and pvc we should make sure the pv and the pod(node where the pod run) which will be attached to be in the same AZ availability zone
