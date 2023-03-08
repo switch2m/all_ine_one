@@ -1,3 +1,5 @@
+Master Node Ports: 2379,6443,10250,10251,10252
+Worker Node Ports: 10250,30000–32767
 to spin up a cluster from scratch using kubeadm we fellow the steps describeded below:
 -/ "ADD THE NETFILTER MODULE"
 -/ "INSTALLING DOCKER RUNTIME on each cluster node"
@@ -14,7 +16,9 @@ kubectl allows you to run commands against Kubernetes clusters.
 Initialize the Kubernetes cluster which creates certificates, pods, services, and other resources.
 Installing wave network add-on.
 Finally, join the worker nodes to the Kubernetes cluster.
-for the first step we should first run this two commands to make sure if the netfilter module is already available if so the command gonna return an output:
+for the first step we should first run this two commands to make sure if the netfilter module is already available if so the command gonna return an output and also disable the swap:
+$ swapoff -a
+$ sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 $lsmod | grep br_netfilter 
 $sudo modprobe br_netfilter
 if there is no output so we should add the module by running the following command 
@@ -47,12 +51,16 @@ $ chown $(id -u):$(id -g) $HOME/.kube/config
 The fifth step is to install pod network adds-on:
 here we used weave as an example
 kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml
 the final step is to join the worker nodes to the master node:
 here we should paste the Join command from the above kubeadm init output
 $kubeadm join 10.128.0.9:6443 --token 21dg74.rkaqfcksuut150xm \
 >         --discovery-token-ca-cert-hash sha256:69cffbab4446f21047711bd07407474LETS 7daa4211508c973931c0c7f177db4f108
  and finaly check the cluster node state by running this command
  $ kubectl get nodes -o wide
+ $kubectl taint node $(hostname) node-role.kubernetes.io/control-plane:NoSchedule
+ kubectl taint nodes control-plane node-role.kubernetes.io/master=true:NoSchedule
+ $kubectl taint node $(hostname) node-role.kubernetes.io/master:NoSchedule
 
 IN CASE OF SEETTING UP A HIGHLY AVAILABLE CLUSTER THE APPROCH REMAIN THE SAME THE DIFFERENCE IS THAT HERE WE USE A LOAD BALANCER TO SPLIT THE TRAFFIC TO THE MASTER NODES:
 here we go by the STACKED ETCD-cluster lets say we have 7 node 3 masters 3 corkers and one server configured as a loadbalancer so first we start by configuring 
