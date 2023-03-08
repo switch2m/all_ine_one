@@ -35,7 +35,8 @@ $sudo apt-get update
 $sudo apt-get install -y kubelet kubeadm kubectl
 $sudo apt-mark hold kubelet kubeadm kubectl
 the forth step which consist of initializing the controlplane consist of the following:
-> kubeadm init --cri-socket /run/containerd/containerd.sock --pod-network-cidr=10.0.0.0/16 --apiserver-advertise-address=<controlplane_ip> #If you don't specify a runtime, kubeadm automatically tries to detect an installed container runtime by scanning through a list of known endpoints.
+> kubeadm config images pull --cri-socket /run/containerd/containerd.sock --kubernetes-version v1.24.3 to install a specific version of k8s
+> kubeadm init --cri-socket /run/containerd/containerd.sock --pod-network-cidr=10.0.0.0/16 --apiserver-advertise-address=<controlplane_ip> --ignore-preflight-errors=all #If you don't specify a runtime, kubeadm automatically tries to detect an installed container runtime by scanning through a list of known endpoints.
 to get controlplane ip run $ifconfig (eth0) command on the master host machine
 and we specify the range of ips the pods gonna get for example 10.0.0.0/16 
 after that we will be demanded to execute the following commands
@@ -70,7 +71,7 @@ backend kubernetes-master-nodes
     server  knode1 10.30.25.81:6443 check fall 3 rise 2 #The check directive is used to configure the health check for each server. In this example,
     server  knode2 10.30.25.82:6443 check fall 3 rise 2 #the health check will check the server every two seconds if it's up and healthy, 
     server  knode3 10.30.25.83:6443 check fall 3 rise 2 #and if the server fails three consecutive checks, it will be marked as down.
- the we should restart Hproxy to apply the config $sudo systemctl restart haproxy
+ then we should restart Hproxy to apply the config $sudo systemctl restart haproxy
  after that we follow the same approche described before:
  adding netfilter to all node install docker runtime
  then in the third step we should ssh to one of the master node(also we may need to run this"$ update-alternatives --set iptables /usr/sbin/iptables-legacy" also) and initialize the cluster with the following command:
