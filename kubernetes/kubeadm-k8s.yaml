@@ -21,6 +21,7 @@ if there is no output so we should add the module by running the following comma
 $cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
 EOF
 $sudo sysctl --system
 for the second step we should refer to the docs foolow the instalation guide off the tool we choose to use lets say containerd for example:
