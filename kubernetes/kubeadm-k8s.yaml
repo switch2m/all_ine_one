@@ -27,6 +27,12 @@ net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 net.ipv4.ip_forward = 1
 EOF
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+sudo modprobe overlay
+sudo modprobe br_netfilter
 $sudo sysctl --system
 for the second step we should refer to the docs foolow the instalation guide off the tool we choose to use lets say containerd for example:
 > apt update
@@ -52,15 +58,15 @@ The fifth step is to install pod network adds-on:
 here we used weave as an example
 kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml
+kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml
 the final step is to join the worker nodes to the master node:
 here we should paste the Join command from the above kubeadm init output
 $kubeadm join 10.128.0.9:6443 --token 21dg74.rkaqfcksuut150xm \
 >         --discovery-token-ca-cert-hash sha256:69cffbab4446f21047711bd07407474LETS 7daa4211508c973931c0c7f177db4f108
  and finaly check the cluster node state by running this command
  $ kubectl get nodes -o wide
- $kubectl taint node $(hostname) node-role.kubernetes.io/control-plane:NoSchedule
  kubectl taint nodes control-plane node-role.kubernetes.io/master=true:NoSchedule
- $kubectl taint node $(hostname) node-role.kubernetes.io/master:NoSchedule
+
 
 IN CASE OF SEETTING UP A HIGHLY AVAILABLE CLUSTER THE APPROCH REMAIN THE SAME THE DIFFERENCE IS THAT HERE WE USE A LOAD BALANCER TO SPLIT THE TRAFFIC TO THE MASTER NODES:
 here we go by the STACKED ETCD-cluster lets say we have 7 node 3 masters 3 corkers and one server configured as a loadbalancer so first we start by configuring 
