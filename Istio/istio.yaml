@@ -135,6 +135,10 @@ grafana & prometheus
 jaeger this is actualy a service for tracing microservices request
 zipkin is an alternative to jaeger
 kiali has an amazing data vizualistaion features as well as feature to configure ur microservice set up and communication
+$curl -L https://istio.io/downloadIstio | sh -
+$cd istio-1.17.1
+$export PATH=$PWD/bin:$PATH
+$istioctl install --set profile=demo -y
 
 
 
