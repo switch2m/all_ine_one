@@ -1,0 +1,4 @@
+when setuping a cluster using rke2 it install it using containerd as CRI if we want to change that we should install the CRI we wanna use on each node of the cluster
+then write the config of the CRI we wanna use(cri-o) on the following config file /etc/rancher/rke2/config.yaml with the two << attribute container-runtime-endpoint: "unix:///var/run/crio/crio.sock"
+container-runtime: "remote">> and use it in the rke2 command as an argument $rke2 server --config  /etc/rancher/rke2/config.yaml or use just $systemctl start rke2-server.service
+https://github.com/clemenko/rke_install_blog
