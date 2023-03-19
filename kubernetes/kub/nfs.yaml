@@ -47,3 +47,5 @@ spec:
 ---
 checkout the pv and pvc status
 k get pv,pvc
+
+https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
