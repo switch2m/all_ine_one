@@ -1,0 +1,49 @@
+setup requirement:
+we need to open ports 2049/TCP and port 111/UDP and check the status of the firwal sudo ufw status
+first we have to setup an nfs server on an ubuntu machine using the following steps:
+./-Install NFS Kernel Server
+sudo apt-get update
+sudo apt install nfs-kernel-server
+./-Create the Export Directory
+sudo mkdir -p /mnt/sharedfolder
+sudo chown nobody:nogroup /mnt/sharedfolder
+sudo chmod 777 /mnt/sharedfolder
+./-Assign server access to client(s) through NFS export file
+sudo nano /etc/exports
+and add the following line on it: /mnt/sharedfolder *(rw,sync,no_subtree_check,no_root_squash,no_all_squash,insecure)
+this line will open that folder to the world
+./- Export the shared directory
+sudo exportfs -rav
+./Open firewall for the client(s)
+sudo ufw status
+If the status is inactive, skip this step since you don’t have an active firewall.
+if its not run $sudo ufw disable
+  The following step wouldn't be required if we setup a cluster on cloud providers plateform
+  Setting Up the Client Machine: in our case the k8s worker node
+  Install NFS Common: using $  sudo apt-get install nfs-common
+  Create a mount point for the NFS host’s shared folder: using the following command sudo mount < nfs_server_IP >:/mnt/sharedfolder /mnt(hostmachine_path)
+Install the externel storage provisionner on the k8s cluster using helm!
+we need just to run the two following command
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+    --set nfs.server=64.225.98.191<nfs-server> \
+    --set nfs.path=<nfs-server-path>
+
+lets test stuff by deploying a pvc referencing the storageclass name that will be created by the helm deployment checkout its name to reference it:
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-claim
+  annotations:
+    nfs.io/storage-path: "test-path" # not required, depending on whether this annotation was shown in the storage class description
+spec:
+  storageClassName: nfs-client
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+checkout the pv and pvc status
+k get pv,pvc
