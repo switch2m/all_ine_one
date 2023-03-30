@@ -43,6 +43,7 @@ After that we should configure the kubernetes plugin on the manage cloud field
 ###
 ![image](https://github.com/switch2m/all_ine_one/blob/d0c078f47ad95c98211392aa308e9aa636876cdd/jenkins/Capture2.PNG)
 ###
+here we should test our connection to check if it was connected successfuly to the cluster
 ![image](https://github.com/switch2m/all_ine_one/blob/d0c078f47ad95c98211392aa308e9aa636876cdd/jenkins/Capture3.PNG)
 ###
 ![image](https://github.com/switch2m/all_ine_one/blob/d0c078f47ad95c98211392aa308e9aa636876cdd/jenkins/Capture4.PNG)
