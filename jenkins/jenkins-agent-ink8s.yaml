@@ -29,21 +29,6 @@ an the Authorization field to logged in user can do anything
 after that go the manage plugins and install the kubernetes plugin and all desired plugin 
 
 After that we should configure the kubernetes plugin on the manage cloud field
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Usefull website
 https://blog.searce.com/jenkins-distributed-cluster-using-dynamic-build-agents-on-gke-e2262a59dcb3
+https://devopscube.com/jenkins-build-agents-kubernetes/
