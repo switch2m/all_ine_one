@@ -38,14 +38,15 @@ an the Authorization field to logged in user can do anything
 after that go the manage plugins and install the kubernetes plugin and all desired plugin 
 
 After that we should configure the kubernetes plugin on the manage cloud field
-![alt text](https://github.com/switch2m/all_ine_one/blob/main/jenkins/Capture1/image.jpg?raw=true)
+
+![image](https://github.com/switch2m/all_ine_one/blob/d0c078f47ad95c98211392aa308e9aa636876cdd/jenkins/Capture1.PNG)
 ###
-![alt text](https://github.com/switch2m/all_ine_one/blob/main/jenkins/Capture2/image.jpg?raw=true)
+![image](https://github.com/switch2m/all_ine_one/blob/d0c078f47ad95c98211392aa308e9aa636876cdd/jenkins/Capture2.PNG)
 ###
-![alt text](https://github.com/switch2m/all_ine_one/blob/main/jenkins/Capture3/image.jpg?raw=true)
+![image](https://github.com/switch2m/all_ine_one/blob/d0c078f47ad95c98211392aa308e9aa636876cdd/jenkins/Capture3.PNG)
 ###
-![alt text](https://github.com/switch2m/all_ine_one/blob/main/jenkins/Capture4/image.jpg?raw=true)
+![image](https://github.com/switch2m/all_ine_one/blob/d0c078f47ad95c98211392aa308e9aa636876cdd/jenkins/Capture4.PNG)
 ###
-![alt text](https://github.com/switch2m/all_ine_one/blob/main/jenkins/Capture6/image.jpg?raw=true)
+![image](https://github.com/switch2m/all_ine_one/blob/d0c078f47ad95c98211392aa308e9aa636876cdd/jenkins/Capture6.PNG)
 
 
