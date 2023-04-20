@@ -94,5 +94,7 @@
         cmd: docker run -d -p 8081:8081 --name nexus -v nexus-data:/nexus-data sonatype/nexus3 #in order to use nexus as
         #a private docker registry you shouldn't forget to port map the port which u had configured on your nexus docker repo lets say u configured it on 
         #port 8082 so the command should be; docker run -d -p 8081:8081 -p 8082:8082 --name nexus -v nexus-data:/nexus-data sonatype/nexus3
+        #if your nexus is not runing https then u should create the daemion.json file on /etc/docker on linux and add insecure-registries field to the file
+        #then run dockerd to check if the config u added to the daemon.json file is valid then restart docker service
       register: docknex
     - debug: msg={{docknex}}
