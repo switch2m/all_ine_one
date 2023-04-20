@@ -91,6 +91,8 @@
   tasks:
     - name: run nexus in docker
       command:
-        cmd: docker run -d -p 8081:8081 --name nexus -v nexus-data:/nexus-data sonatype/nexus3
+        cmd: docker run -d -p 8081:8081 --name nexus -v nexus-data:/nexus-data sonatype/nexus3 #in order to use nexus as
+        #a private docker registry you shouldn't forget to port map the port which u had configured on your nexus docker repo
+        #lets say u configured it on the port 8082 so the command should be; docker run -d -p 8081:8081 --name nexus -v nexus-data:/nexus-data sonatype/nexus3
       register: docknex
     - debug: msg={{docknex}}
