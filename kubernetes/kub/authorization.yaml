@@ -1,4 +1,8 @@
-apiGroup: kubectl api-resources, there multiple apiGroups in k8s such as core, apps...
+apiGroup: kubectl api-resources, there multiple apiGroups in k8s such as core, apps... if we wanna access get for example the pods deployed in the cluster
+using the curl command we should first make the kube api server available from the machine where we have the kubeconfig file using the "$kubectl proxy &" command
+or using the endpoints of the kube api server directly but we should have the permission for that. there is a difference if we wanna query to the core api object
+deployed on the cluster we use jsut curl http://localhost:<port>/api/v1/namespaces/... for the other groups (apps, storage...) we replace api by apis 
+http://localhost:<port>/apis/apps/v1/namespaces/...
 kubeconfig file contains info about the cluster: there is 3 important field in the kubeconfig file cluster, contexts, users
 securityContexts: allow u to specify the user which the container/pod will startup and execute command on itwe can use the capabilities field to add or delete
 privileges to the current user of the container
