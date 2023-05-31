@@ -64,7 +64,7 @@ metadata:
   name: frontend
 spec:
   hosts: 
-  - "frontend"
+  - "frontend" #the label of the pod targeted
   http:
   - match:
     - headers:
@@ -72,7 +72,7 @@ spec:
           exact: bar1
     route:
     - destination:
-        host: frontend
+        host: frontend #servicename
         subset: v1
   - route:
     - destination:
