@@ -2,3 +2,7 @@ when setuping a cluster using rke2 it install it using containerd as CRI if we w
 then write the config of the CRI we wanna use(cri-o) on the following config file /etc/rancher/rke2/config.yaml with the two << attribute container-runtime-endpoint: "unix:///var/run/crio/crio.sock"
 container-runtime: "remote">> and use it in the rke2 command as an argument $rke2 server --config  /etc/rancher/rke2/config.yaml or use just $systemctl start rke2-server.service
 https://github.com/clemenko/rke_install_blog
+to join a new cluster  to rancher setuped using rke2 we first have to create the namespace 'cattle-system' then we should create the secret for the ssl certificate 
+$kubectl -n cattle-system create secret generic tls-ca --from-file=cacerts.pem=fullchain.pem
+$kubectl create secret -n cattle-system tls tls-rancher-ingress --key privkey.pem --cert cert.pem
+$helm install rancher rancher-stable/rancher  --version 2.7.0 --namespace cattle-system --set hostname=bimoe.ddns.net --set ingress.tls.source=secret --set privateCA=true --set replicas=1
