@@ -1,1 +1,4 @@
 A tenant in Azure provides a security and administrative boundary, in one sentance its user and resource management within an Azure organization.
+A CDN in azure is a content delivery network its sets in front of the website and will take any of the static files(audio,videos, images , css files) it take those files
+store them on other servers other than your webserver store them often closer to the end user than the webserver and by that way its faster fot the end users and it actualy 
+reduces the amount of time your webserver has in serving content 
