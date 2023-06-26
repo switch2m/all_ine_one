@@ -25,9 +25,7 @@ if its not run $sudo ufw disable
 Install the externel storage provisionner on the k8s cluster using helm!
 we need just to run the two following command
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
-helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
-    --set nfs.server=64.225.98.191<nfs-server> \
-    --set nfs.path=<nfs-server-path>
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=64.225.98.191<nfs-server> --set nfs.path=/mnt/sharedfolder
 
 lets test stuff by deploying a pvc referencing the storageclass name that will be created by the helm deployment checkout its name to reference it:
 ---
