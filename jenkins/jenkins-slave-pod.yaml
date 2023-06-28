@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: "Pod"
+metadata:
+  labels:
+    jenkins/jenkins-slave-agent: "true"
+    jenkins/label: "jenkins-slave-agent"
+  name: "slave-agent-pqvdx"
+  namespace: "jenkins"
+spec:
+  containers:
+  - args:
+    - "********"
+    - "slave-agent-pqvdx"
+    env:
+    - name: "JENKINS_SECRET"
+      value: "********"
+    - name: "JENKINS_TUNNEL"
+      value: "jenkins-agent.jenkins.svc.cluster.local:50000"
+    - name: "JENKINS_AGENT_NAME"
+      value: "slave-agent-pqvdx"
+    - name: "JENKINS_NAME"
+      value: "slave-agent-pqvdx"
+    - name: "JENKINS_AGENT_WORKDIR"
+      value: "/home/jenkins/agent"
+    - name: "JENKINS_URL"
+      value: "http://jenkins.jenkins.svc.cluster.local:8080"
+    image: ""
+    imagePullPolicy: "IfNotPresent"
+    name: "jnlp"
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "512m"
+      requests:
+        memory: "100m"
+        ephemeral-storage: "200Mi"
+    tty: true
+    volumeMounts:
+    - mountPath: "/var/run/docker.sock"
+      name: "volume-0"
+      readOnly: false
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+    workingDir: "/home/jenkins/agent"
+  serviceAccountName: "default"
+  volumes:
+  - hostPath:
+      path: "/var/run/docker.sock"
+    name: "volume-0"
+  - emptyDir:
+      medium: ""
+    name: "workspace-volume"
