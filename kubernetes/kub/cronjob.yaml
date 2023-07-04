@@ -1,0 +1,461 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-root-secret
+type: Opaque
+data:
+  password: 
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-user-secret
+type: Opaque
+data:
+  username: 
+  password: 
+---
+apiVersion: v1
+metadata:
+  name: mysql-configmap
+kind: ConfigMap
+data:
+  mysql.cnf: |
+    [mysqld]
+    user = mysql
+    bind-address = 0.0.0.0
+    default_storage_engine = innodb
+    binlog_format = row
+    innodb_autoinc_lock_mode = 2
+    innodb_flush_log_at_trx_commit = 0
+    innodb_rollback_on_timeout=1
+    wsrep_log_conflicts=ON
+    innodb_status_output=ON;
+    innodb_status_output_locks=ON;
+    ##############################################
+    query_cache_size = 0
+    query_cache_type = 0
+    sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+    innodb_file_per_table=ON
+    ignore-db-dir=lost+found
+
+    ssl-ca=/etc/ssl/certs/ca.pem
+    ssl-cert=/etc/ssl/certs/server-cert.pem
+    ssl-key=/etc/ssl/certs/server-key.pem
+
+    innodb_buffer_pool_size = 10G # (adjust value here, 50%-70% of total RAM)
+    innodb_log_file_size = 256M
+    innodb_flush_log_at_trx_commit = 0
+    innodb_flush_method = O_DIRECT
+    skip-name-resolve
+
+    max_connections = 2000
+
+    #server-id = 1
+    #log_slave_updates = on
+    #log-bin = /var/lib/mysql/master-bin
+    #log-bin-index = /var/lib/mysql/master-bin.index
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nfs
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: <>
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv-azure
+  labels:
+    type: azureDisk
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteOnce
+  azureDisk:
+    cachingMode: ReadWrite
+    diskName: <diskname>
+    diskURI: <disk_uri>
+    fsType: ext4
+    kind: Managed
+    readOnly: false
+---
+############################
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+spec:
+  volumeName: mysql-pv-azure/pv-nfs
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+############################
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - image: mysql:8.0
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-root-secret
+              key: password
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "no"
+        - name: MYSQL_INITDB_SKIP_TZINFO
+          value: "yes"
+        - name: MYSQL_DATABASE
+          value: mysql
+        livenessProbe:
+          exec:
+            command:
+            - bash
+            - "-c"
+            - |
+              mysqladmin -uroot -p$MYSQL_ROOT_PASSWORD ping
+          failureThreshold: 3
+          initialDelaySeconds: 300
+          periodSeconds: 1
+          successThreshold: 1
+          timeoutSeconds: 1
+        readinessProbe:
+          exec:
+            command:
+            - bash
+            - "-c"
+            - |
+              mysql -h127.0.0.1 -uroot -p$MYSQL_ROOT_PASSWORD -e'SELECT 1'
+          failureThreshold: 3
+          initialDelaySeconds: 30
+          periodSeconds: 1
+          successThreshold: 1
+          timeoutSeconds: 1
+        ports:
+        - containerPort: 3306
+          name: mysql
+        resources:
+          requests:
+            cpu: "2"
+            memory: 4Gi
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+        - name: mysql-configmap-volume
+          mountPath: /etc/mysql/mysql.cnf
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+      - name: mysql-configmap-volume
+        configMap:
+          defaultMode: 420
+          items:
+          - key: mysql.cnf
+            path: mysql.cnf
+          name: mysql-configmap
+        
+---
+############################
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
+---
+# cron job
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: backup-mysql
+spec:
+  concurrencyPolicy: Allow
+  failedJobsHistoryLimit: 1
+  schedule: "*/2 * * * *"
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - args:
+            - /backup.sh
+            command:
+            - /bin/sh
+            env:
+            - name: BACKUP_SRC_HOST
+              value: <>
+            - name: BACKUP_SRC_PORT
+              value: "3306"
+            - name: BACKUP_TYPE
+              value: full
+            - name: BACKUP_PATH
+              value: /xtrabackup
+            - name: BACKUP_USER
+              value: root
+            - name: BACKUP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: mysql-root-credentials
+            image: perconalab/percona-xtrabackup:2.4
+            imagePullPolicy: IfNotPresent
+            name: xtrabackup
+            volumeMounts:
+            - mountPath: /xtrabackup
+              name: mysql-backup-hdd
+            - mountPath: /var/lib/mysql
+              name: mysql
+            - mountPath: /backup.sh
+              name: scripts
+              subPath: backup.sh
+            - mountPath: /restore.sh
+              name: scripts
+              subPath: restore.sh
+          volumes:
+          - name: mysql-backup-hdd
+            persistentVolumeClaim:
+              claimName: mysql-back-pvc
+          - name: mysql
+            persistentVolumeClaim:
+              claimName: mysql--0
+          - configMap:
+              defaultMode: 420
+              items:
+              - key: backup.sh
+                path: backup.sh
+              - key: restore.sh
+                path: restore.sh
+              name: backupscripts
+            name: scripts
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backupscripts
+data:
+  backup.sh: "#! /bin/bash\n# this program create full and incremental backup\necho
+    \"the script is running now\"\n#env variables: \n  #BACKUP_SRC_HOST \n  #BACKUP_SRC_PORT\n
+    \ #BACKUP_TYPE {full,inc}\n  #BACKUP_PATH\n  #BACKUP_USER\n  #BACKUP_PASSWORD\necho
+    \"current available space is:\" \n\ndf -h | grep xtrabackup | awk '{print $4}'\n
+    \ \n# set defaults\nMY_BACKUP_SRC_HOST=\"${BACKUP_SRC_HOST:-mysql-slave}\"\nMY_BACKUP_SRC_PORT=\"${BACKUP_SRC_PORT:-3306}\"\nMY_BACKUP_TYPE=\"${BACKUP_TYPE:-full}\"\nMY_BACKUP_PATH=\"${BACKUP_PATH:-/xtrabackup}\"\nMY_BACKUP_USER=\"${BACKUP_USER:-root}\"\nMY_BACKUP_PASSWORD=\"${BACKUP_PASSWORD:-password}\"\nMY_BACKUP_DAY_RETENTION=\"${BACKUP_DAY_RETENTION:-7}\"\n#MyVar=\"${DEPLOY_ENV:-default_value}\"\n\nDAY=`date
+    '+%Y%m%d'`\nHOUR=`date '+%H'`\nSTART=`date +\"%Y-%m-%d_%H-%M-%S\"`\nLOGFILE=\"$MY_BACKUP_PATH/backup_log-$DAY.txt\"\n\nif
+    [ \"$MY_BACKUP_TYPE\" = \"full\" ]; then\n  \n  FULL_PATH=$MY_BACKUP_PATH/$DAY/full/\n
+    \ if [ ! -d \"$FULL_PATH\" ]; then\n    echo \"creating full backup FULL_PATH:$FULL_PATH\"
+    | tee -a $LOGFILE\n   sleep 600s\n   echo \"sleeping for 600s zzzZZzzzZZ\"\n    mkdir
+    -p $FULL_PATH\n    #echo \"xtrabackup --user=$MY_BACKUP_USER --password=$MY_BACKUP_PASSWORD
+    --host=$MY_BACKUP_SRC_HOST --port=$MY_BACKUP_SRC_PORT --backup --target-dir=$FULL_PATH
+    \"\n    xtrabackup --no-lock --user=$MY_BACKUP_USER --password=$MY_BACKUP_PASSWORD
+    --host=$MY_BACKUP_SRC_HOST --port=$MY_BACKUP_SRC_PORT --backup --target-dir=$FULL_PATH
+    >>$LOGFILE 2>&1\n    if [ $? -eq 0 ]\n     then\n\tENDSCRIPT=`date +\"%Y-%m-%d_%H-%M-%S\"`\n
+    \      echo \"full backup Successfully terminated START:$START   END:$ENDSCRIPT\"
+    | tee -a $LOGFILE\n     echo \"find $MY_BACKUP_PATH -maxdepth 1 -type d -ctime
+    +$MY_BACKUP_DAY_RETENTION -exec rm -rf {} \\;\"\n       echo \"find $MY_BACKUP_PATH
+    -maxdepth 1 -type d -ctime +$MY_BACKUP_DAY_RETENTION -exec rm -rf {} \\;\"| tee
+    -a $LOGFILE\n       find $MY_BACKUP_PATH -maxdepth 1 -type d -ctime +7 -exec rm
+    -vrf {} \\;\n       echo \"folders deleted successfully\"\n\n    else\n       echo
+    \"failed\" | tee -a $LOGFILE\n       exit 1\n    fi\n   \n  else\n    echo \"Failed
+    full backup - FULL_PATH:$FULL_PATH alredy exists\" | tee -a $LOGFILE\n  fi\nfi\n\nif
+    [ \"$MY_BACKUP_TYPE\" = \"inc\" ]; then\n  NEWEST_DIR=`ls -t $MY_BACKUP_PATH/$DAY/|head
+    -1`    \n  PREVIOUS_INC_PATH=$MY_BACKUP_PATH/$DAY/$NEWEST_DIR\n  NEW_INC_PATH=$MY_BACKUP_PATH/$DAY/$HOUR/\n
+    \ if [ ! -d \"$NEW_INC_PATH\" ]; then\n    echo \"creating incremental backup
+    PREVIOUS_INC_PATH:$PREVIOUS_INC_PATH  NEW_INC_PATH:$NEW_INC_PATH\" | tee -a $LOGFILE\n
+    \   mkdir $NEW_INC_PATH\n    xtrabackup --no-lock --user=$MY_BACKUP_USER --password=$MY_BACKUP_PASSWORD
+    --host=$MY_BACKUP_SRC_HOST --port=$MY_BACKUP_SRC_PORT --backup --target-dir=$NEW_INC_PATH
+    --incremental-basedir=$PREVIOUS_INC_PATH >> $LOGFILE 2>&1\n    if [ $? -eq 0 ]\n
+    \    then\n\tENDSCRIPT=`date +\"%Y-%m-%d_%H-%M-%S\"`\n       echo \"incremental
+    backup Successfully terminated START:$START   END:$ENDSCRIPT\" | tee -a $LOGFILE\n
+    \   else\n       echo \"failed incremental backup\" | tee -a $LOGFILE\n       exit\n
+    \   fi\n  else\n    echo \"Failed incremental backup -  NEW_INC_PATH:$NEW_INC_PATH
+    already exists\" | tee -a $LOGFILE\n  fi\nfi"
+  restore.sh: "#! /bin/bash\n# this program restore backup\n\n#env variables: \n  #BACKUP_DAY\n
+    \ #BACKUP_HOUR\n  #BACKUP_PATH\n\n#export BACKUP_DAY=20200618;export BACKUP_HOUR=15;sh
+    /restore.sh\n#default values\nMY_BACKUP_PATH=\"${BACKUP_PATH:-/xtrabackup}\"\nMY_BACKUP_DAY=\"${BACKUP_DAY:-20200610}\"\nMY_BACKUP_HOUR=\"${BACKUP_HOUR:-06}\"\n\n\nTEMP_DIR=\"$MY_BACKUP_PATH/temp/$MY_BACKUP_DAY-$MY_BACKUP_HOUR\"\nRESTORE_LOG_FILE=\"$MY_BACKUP_PATH/temp/restore_log_$MY_BACKUP_DAY-$MY_BACKUP_HOUR\".txt\necho
+    \"start preparing restore in Directory : $TEMP_DIR/$MY_BACKUP_DAY for details
+    watch log file : $RESTORE_LOG_FILE\"\n\nSCRIPT_START=`date +\"%Y-%m-%d_%H-%M-%S\"`\n\n\nif
+    [ -d \"$TEMP_DIR\" ]; then\n   echo \"temp directory $TEMP_DIR already exists\"\n
+    \  exit 1\nfi\n\nmkdir -p \"$TEMP_DIR\"\n\ncp -R $MY_BACKUP_PATH/$MY_BACKUP_DAY
+    $TEMP_DIR\nxtrabackup --prepare --apply-log-only --target-dir=\"$TEMP_DIR/$MY_BACKUP_DAY/full\"
+    >>$RESTORE_LOG_FILE 2>&1\nif [ ! -d \"$TEMP_DIR/$MY_BACKUP_DAY/$MY_BACKUP_HOUR\"
+    ]; then\n   #restore Full\n   echo \"No inc Backup for this Hour $MY_BACKUP_HOUR\"\nelse\n
+    \ #restore incremental\n  INT_MY_BACKUP_HOUR=`expr $MY_BACKUP_HOUR + 0`\n  i=1\n
+    \ while [ $i -le $INT_MY_BACKUP_HOUR ]\n  do\n    DIR=`printf \"%02d\\n\" $i `\n
+    \   \n    if [ -d \"$TEMP_DIR/$MY_BACKUP_DAY/$DIR\" ]; then\n       echo \"preparing
+    inc backup $DIR\"\n       echo \"preparing inc backup $DIR\" >>$RESTORE_LOG_FILE\n
+    \      xtrabackup --prepare --apply-log-only --target-dir=\"$TEMP_DIR/$MY_BACKUP_DAY/full\"
+    --incremental-dir=\"$TEMP_DIR/$MY_BACKUP_DAY/$DIR\" >> $RESTORE_LOG_FILE 2>&1\n
+    \   fi\n    i=$[$i+1]\n done\n echo \"preparing full directory $TEMP_DIR/$MY_BACKUP_DAY/full\"\n
+    echo \"preparing full directory $TEMP_DIR/$MY_BACKUP_DAY/full\" >> $RESTORE_LOG_FILE
+    \n xtrabackup --prepare --target-dir=\"$TEMP_DIR/$MY_BACKUP_DAY/full\"  >>$RESTORE_LOG_FILE
+    2>&1\n\n echo \"Directory to restore $TEMP_DIR/$MY_BACKUP_DAY/full\"\n echo \"Directory
+    to restore $TEMP_DIR/$MY_BACKUP_DAY/full\" >> $RESTORE_LOG_FILE\n rsync -avrP
+    $TEMP_DIR/$MY_BACKUP_DAY/full/ /var/lib/mysql/  >> $RESTORE_LOG_FILE 2>&1\n\nSCRIPT_END=`date
+    +\"%Y-%m-%d_%H-%M-%S\"`\n echo \"start script : $SCRIPT_START end script : $SCRIPT_END
+    \"\n echo \"start script : $SCRIPT_START end script : $SCRIPT_END \" >> $RESTORE_LOG_FILE\n
+    \n #delete temp directory \nfi"
+    ###########
+    import hudson.model.*
+
+pipeline {
+    parameters {
+        string(defaultValue: "", description: 'tag', name: 'param1')
+        string(defaultValue: "", description: 'env', name: 'param2')
+        string(defaultValue: "", description: 'tagCentral', name: 'tagCentral')
+        string(defaultValue: "", description: 'tagHASH', name: 'tagHASH')
+		}
+		environment {
+			    COMPONENT="all"				
+				valuesfile='kube/chart/values-dev.yaml'
+			  }
+
+    agent { label 'jenkins-agent-helm' }  
+    stages {
+        stage('Clone Repo') { 
+            steps {
+                checkout scm
+ 
+            }
+        }
+		
+        stage('Condition on branch & GIT_URL') {
+			 
+			steps {
+                script {
+				 	if (param2 == 'UAT' && param1=='https://gitlab.com/repo-url.git') {
+					withCredentials([
+					usernamePassword(credentialsId: 'ansiblevaultid', passwordVariable: 'vaultpass', usernameVariable: 'vaultuname'),
+					usernamePassword(credentialsId: 'gitlab', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')
+
+					]) {
+
+                     sh '''
+                    vaultpasswordfile="vault_pass.txt"
+                    echo $vaultpass >> $vaultpasswordfile
+                    ansible-vault decrypt --vault-password-file  $vaultpasswordfile env/ru/dev/kubeconfig
+
+                     '''
+					 script {
+					   
+					    myimage = sh ( script: "echo ${params.tagCentral} | tr -d '\'",returnStdout: true).trim()
+						MYTAG1  = sh ( script: "sed -i.bak -r 's%(image: *).*%image: ${myimage}%' kube/manifest/pingcentral.yaml",returnStdout: true).trim()
+						MYTAG2  = sh ( script: "sed -i.bak -r 's/(commit *: *).*/\\1${params.tagHASH}/' kube/manifest/pingcentral.yaml",returnStdout: true).trim()
+
+                    }
+							sh 'git config --global user.email "jenkins@deloitte.fr"'
+							sh 'git checkout UAT'
+							sh "git add kube/manifest/pingcentral.yaml"
+							  
+							sh "git commit -m 'upgrade ' || echo 'No changes to commit' "
+
+							sh'git push https://${USERNAME}:${PASSWORD}@gitlab.com/repo-url.git '
+		             
+					 sh 'kubectl  --kubeconfig=env/ru/dev/kubeconfig  apply -f git add kube/manifest/pingcentral.yaml -n pingcentral '
+					 sh 'rm -rf vault_pass.txt'
+					} 
+				}
+			}
+		}	
+	}
+}
+//################################//
+import hudson.model.*
+
+    pipeline {
+    agent any 
+
+    environment {
+       
+       REPOSITORY="nexus-url"
+       DOCKERFILENAME="Dockerfile"
+       APPNAME   =""
+       CLIENT    =""
+       MYENV     =""
+       MYBRANCH  = ""
+       imageandtag=""
+    }
+    
+        
+    stages {
+        stage('Clone repo') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('dev') {
+			 when {
+                branch "devlop"
+            }
+			steps {
+                  withEnv(["MYBRANCH=devlop","MYENV=dev"]) {
+                       executeUpdate()
+                  }               
+	    	}
+        }
+    }
+}//pipeline
+
+def executeUpdate() {
+
+    echo env.GIT_URL
+    script {
+    
+        SHORTCOMMITID = sh ( script: "git describe --always",returnStdout: true).trim()
+        ROOTIMAGE= sh ( script: "yq e '.${env.APPNAME}.${MYENV}.rootimage' root-image.yml",returnStdout: true).trim()
+        ROOTIMAGETAG= sh ( script: "echo ${ROOTIMAGE}|cut -d ':' -f2 ",returnStdout: true).trim()
+        imageandtag=env.REPOSITORY+"/"+env.CLIENT+"/"+env.APPNAME+"-"+env.MYENV+":"+ROOTIMAGETAG+"-"+SHORTCOMMITID
+        
+        
+        echo "imageandtag=${imageandtag}"
+        
+      }
+    
+    // build push image 
+    withCredentials([
+    usernamePassword(credentialsId: 'regcred', passwordVariable: 'jenkinspass', usernameVariable: 'jenkinsuname')
+    ]) {
+          sh' docker login ${REPOSITORY} -u $jenkinsuname -p $jenkinspass'
+          script {
+                sh ( script: "docker build -t ${imageandtag}  -f ${DOCKERFILENAME} . --build-arg ROOTIMAGE=${ROOTIMAGE}",returnStdout: true).trim()
+                sh ( script: "docker push ${imageandtag}",returnStdout: true).trim()
+          }
+    }
+    
+    //trigger deployement       
+    build job: 'pingCD', parameters: [
+        [$class: 'StringParameterValue', name: 'param1', value: "${env.GIT_URL}"],[$class: 'StringParameterValue', name: 'param2', value: "${MYBRANCH}"],[$class: 'StringParameterValue', name: 'tagHASH', value: "${env.GIT_COMMIT}"],[$class: 'StringParameterValue', name: 'tagCentral', value: "${imageandtag}"]
+    ]
+}
+
