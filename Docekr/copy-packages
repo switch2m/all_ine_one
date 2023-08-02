@@ -1,0 +1,13 @@
+# Stage 1: Alpine stage
+FROM alpine:latest AS alpine
+
+# Install required packages in the Alpine stage
+RUN apk update && apk add git ansible curl
+
+# Stage 2: Kaniko stage with the same base image
+FROM gcr.io/kaniko-project/executor AS kaniko
+
+# Copy required files from the Alpine stage to the Kaniko stage
+COPY --from=alpine /usr/bin/git /bin/
+COPY --from=alpine /usr/bin/ansible* /bin/
+COPY --from=alpine /usr/bin/curl /bin/
