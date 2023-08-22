@@ -1,2 +1,6 @@
 rewrite change the request only internaly in the server side and its doesn't affect the client uri request
 redirect changes the request internaly in the server side and it changes also the client uri request
+200 resp code for success
+3XX resp code for redirection 301 Moved Permanently, 302 Found (Moved Temporarily), 304 Not Modified
+4XX resp code for client error 400 Bad Request, 401 Unauthorized,403 Forbidden,404 Not Found
+ 
