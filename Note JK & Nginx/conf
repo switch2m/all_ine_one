@@ -3,4 +3,18 @@ redirect changes the request internaly in the server side and it changes also th
 200 resp code for success
 3XX resp code for redirection 301 Moved Permanently, 302 Found (Moved Temporarily), 304 Not Modified
 4XX resp code for client error 400 Bad Request, 401 Unauthorized,403 Forbidden,404 Not Found
- 
+
+NGINX AS REVERSE PROXY: INTERMEDIATE BETWEEN THE CLIENT AND THE RESSOURCE
+http {
+    server {
+        listen 80;
+        server_name yourdomain.com;
+
+        location / {
+            add_header proxied nginx#to add headers to the client only
+            proxy_set_header proxied nginx#to add header to the proxy header server
+            proxy_pass http://backend_server_ip:backend_server_port; #generaly where the backend service is deployed but it could be a google.com or any remote server or 
+        }
+    }
+}
+
