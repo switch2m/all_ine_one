@@ -18,3 +18,22 @@ http {
     }
 }
 
+for the LOADBALANCER: Distribute request, insure redundency
+http {
+    upstream backend_servers { 
+        server backend_server1_ip:backend_server1_port;
+        server backend_server2_ip:backend_server2_port;
+        server backend_server3_ip:backend_server3_port;
+    }
+
+    server {
+        listen 80;
+        server_name loadbalancer.yourdomain.com;
+
+        location / {
+            proxy_pass http://backend_servers; #this should math the upstream name
+        }
+    }
+}
+
+
