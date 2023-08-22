@@ -4,6 +4,13 @@ redirect changes the request internaly in the server side and it changes also th
 3XX resp code for redirection 301 Moved Permanently, 302 Found (Moved Temporarily), 304 Not Modified
 4XX resp code for client error 400 Bad Request, 401 Unauthorized,403 Forbidden,404 Not Found
 
+USEFULL NGINX COMMAND
+nginx -t # check and validate the nginx configuration
+systemctl reload nginx
+nginx -V #provides information abount nginx version etc
+
+curl -I
+
 NGINX AS REVERSE PROXY: INTERMEDIATE BETWEEN THE CLIENT AND THE RESSOURCE
 http {
     server {
@@ -35,5 +42,13 @@ http {
         }
     }
 }
+
+SECURE UR NGINX
+to hide ur nginx version add this to the http block: server_tokens off; save and reload
+to avoid clickjacking ("UI redress attack" or a "UI redressing attack," is a malicious technique in which an 
+attacker tricks a user into clicking on something different from what the user perceives they are clicking on) add this
+header to the server responses: add_header X-Frame-Options "SAMEORIGIN"
+
+
 
 
