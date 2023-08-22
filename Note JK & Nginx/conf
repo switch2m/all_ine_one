@@ -47,7 +47,9 @@ SECURE UR NGINX
 to hide ur nginx version add this to the http block: server_tokens off; save and reload
 to avoid clickjacking ("UI redress attack" or a "UI redressing attack," is a malicious technique in which an 
 attacker tricks a user into clicking on something different from what the user perceives they are clicking on) add this
-header to the server responses: add_header X-Frame-Options "SAMEORIGIN"
+header to the server responses: add_header X-Frame-Options "SAMEORIGIN";
+to prevent XSS attack use this:
+add_header X-XSS-Protection "1; mode=block";
 
 
 
