@@ -1,0 +1,2 @@
+rewrite change the request only internaly in the server side and its doesn't affect the client uri request
+redirect changes the request internaly in the server side and it changes also the client uri request
