@@ -98,7 +98,8 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: my-ingress
+  name: pf-ingress
+  namespace: testpf
   annotations:
     kubernetes.io/ingress.class: nginx
 spec:
@@ -109,14 +110,14 @@ spec:
       port:
         number: 80
   rules:
-    - host:
+    - host: eu-pingadmin-uat-auchan-com.cloud.deloitte.fr
       http:
-        paths:
+        paths: 
           - path: /pf-admin-api/v1/idp/spConnections/
             pathType: Prefix
             backend:
               service:
-                name: app
+                name: <svc_name>
                 port:
                   number: 80
 
@@ -124,7 +125,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: app
+                name: <svc_name>
                 port:
                   number: 80
 
