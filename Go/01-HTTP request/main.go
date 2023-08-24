@@ -22,7 +22,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	defer response.Body.Close()
+	defer response.Body.Close() #ensure that the response body of an HTTP request is closed properly and ensures that developers don't accidentally neglect closing resources.
 
 	fmt.Println("HTTP Status Code: ", response.StatusCode)
 	//
