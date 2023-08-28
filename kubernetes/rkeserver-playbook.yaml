@@ -30,7 +30,7 @@
       ignore_errors: yes
 
     - name: Add KUBECONFIG environment variable
-      command: export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+      shell: export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
       become: yes
 
     - name: Check node status
