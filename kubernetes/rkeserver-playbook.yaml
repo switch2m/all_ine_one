@@ -1,6 +1,6 @@
 ---
 - name: Configure Ubuntu Server
-  hosts: your_target_host
+  hosts: localhost
   become: yes
   tasks:
     - name: Stop the software firewall
@@ -16,12 +16,6 @@
         state: present
       register: apt_result
 
-    - name: Upgrade packages
-      apt:
-        upgrade: dist
-        autoremove: yes
-        state: latest
-
     - name: Install RKE2 on rancher1
       command: curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=server sh -
 
@@ -36,10 +30,8 @@
       ignore_errors: yes
 
     - name: Add KUBECONFIG environment variable
-      lineinfile:
-        path: /etc/environment
-        line: 'export KUBECONFIG=/etc/rancher/rke2/rke2.yaml'
-        state: present
+      command: export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+      become: yes
 
     - name: Check node status
       command: kubectl get node
