@@ -1,0 +1,51 @@
+---
+- name: Configure Ubuntu Server
+  hosts: your_target_host
+  become: yes
+  tasks:
+    - name: Stop the software firewall
+      systemd:
+        name: ufw
+        enabled: no
+        state: stopped
+
+    - name: Update and install NFS
+      apt:
+        update_cache: yes
+        name: nfs-common
+        state: present
+      register: apt_result
+
+    - name: Upgrade packages
+      apt:
+        upgrade: dist
+        autoremove: yes
+        state: latest
+
+    - name: Install RKE2 on rancher1
+      command: curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=server sh -
+
+    - name: Start and enable rke2-server service
+      systemd:
+        name: rke2-server
+        enabled: yes
+        state: started
+
+    - name: Symlink kubectl
+      shell: ln -s $(find /var/lib/rancher/rke2/data/ -name kubectl) /usr/local/bin/kubectl
+      ignore_errors: yes
+
+    - name: Add KUBECONFIG environment variable
+      lineinfile:
+        path: /etc/environment
+        line: 'export KUBECONFIG=/etc/rancher/rke2/rke2.yaml'
+        state: present
+
+    - name: Check node status
+      command: kubectl get node
+      ignore_errors: yes
+      register: kubectl_result
+
+    - name: Display kubectl output
+      debug:
+        var: kubectl_result.stdout_lines
