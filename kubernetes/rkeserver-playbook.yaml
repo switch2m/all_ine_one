@@ -87,5 +87,94 @@
         enabled: yes
         state: started
 
-    
+    ###################
+    ---
+- name: Configure RKE Server(master)
+  hosts: master
+  become: yes
+  tasks:
+    - name: Stop the software firewall
+      systemd:
+        name: ufw
+        enabled: no
+        state: stopped
+
+    - name: Update and install NFS
+      apt:
+        update_cache: yes
+        name: nfs-common
+        state: present
+      register: apt_result
+
+    - name: Install RKE2 on rancher1
+      command: sh -c "curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=server sh -"
+
+    - name: Start and enable rke2-server service
+      systemd:
+        name: rke2-server
+        enabled: yes
+        state: started
+
+    - name: Symlink kubectl
+      shell: ln -s $(find /var/lib/rancher/rke2/data/ -name kubectl) /usr/local/bin/kubectl
+      ignore_errors: yes
+
+    - name: Add KUBECONFIG environment variable
+      command: sh -c "export KUBECONFIG=/etc/rancher/rke2/rke2.yaml"
+      become: yes
+
+    - name: Check node status
+      command: kubectl get node
+      ignore_errors: yes
+      register: kubectl_result
+
+    - name: Display kubectl output
+      debug:
+        var: kubectl_result.stdout_lines
+
+    - name: get the token
+      command: sh -c "cat /var/lib/rancher/rke2/server/node-token"
+      register: node_token
+
+    - name: set node token
+      set_fact:
+        master_token: node_token.stdout
+
+    - name: get and extract the vm ip
+      command: sh -c "ip add | grep -oP 'inet \K[0-9.]+' | sed -n '2p'"
+      register: vm_master_ip
+
+    - name: set vm_ip variable
+      set_fact: #this is how we set a variable in ansible
+        vm_m_ip: "{{ vm_master_ip.stdout }}"
+
+    - name: set and print the variable in the same shell
+      command: sh -c "export MYIPS={{ vm_m_ip }} && echo $MYIPS" #this isn't gonna be in the env variable cause its get runs in just the sheel openned but ansible and it doesn't persist
+
+- name: Configure RKE agents(worker)
+  hosts: worker
+  become: yes
+  tasks:
+    - name: Install RKE2 on rancher1
+      command: sh -c "curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=agent sh -"
+
+    - name: Create a directory for rke
+      file:
+        path: /etc/rancher/rke2/
+        state: directory
+        mode: '0755'
+
+    - name: Install RKE2 on rancher1
+      shell: |
+        echo "server: https://{{ vm_m_ip }}:9345" > /etc/rancher/rke2/config.yaml
+
+    - name: create a dir
+      shell: |
+        echo "token: {{ master_token }}" >> /etc/rancher/rke2/config.yaml
+
+    - name: Start and enable rke2-server service
+      systemd:
+        name: rke2-agent
+        enabled: yes
+        state: started
     
