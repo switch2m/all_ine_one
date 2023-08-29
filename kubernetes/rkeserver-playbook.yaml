@@ -46,9 +46,9 @@
       command: sh -c "cat /var/lib/rancher/rke2/server/node-token"
       register: node_token
 
-    - name: print node_token
-      debug:
-        var: node_token.stdout
+    - name: set node token
+      set_fact:
+        master_token: node_token.stdout
 
     - name: get and extract the vm ip
       command: sh -c "ip add | grep -oP 'inet \K[0-9.]+' | sed -n '2p'"
@@ -56,10 +56,10 @@
 
     - name: set vm_ip variable
       set_fact: #this is how we set a variable in ansible
-        vm_ip: "{{ vm_ip_result.stdout }}"
+        vm_m_ip: "{{ vm_master_ip.stdout }}"
 
     - name: set and print the variable in the same shell
-      command: sh -c "export MYIPS={{ vm_ip }} && echo $MYIPS" #this isn't gonna be in the env variable cause its get runs in just the sheel openned but ansible and it doesn't persist
+      command: sh -c "export MYIPS={{ vm_m_ip }} && echo $MYIPS" #this isn't gonna be in the env variable cause its get runs in just the sheel openned but ansible and it doesn't persist
 
 ---
 - name: Configure RKE agents(worker)
@@ -69,3 +69,24 @@
     - name: export master ip
       command: sh -c "export RANCHERM={{ vm_ip }}"
       become: yes
+      
+    - name: Install RKE2 on rancher1
+      command: curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=agent sh -
+      
+    - name: create a dir
+      command: mkdir -p /etc/rancher/rke2/
+      
+    - name: Install RKE2 on rancher1
+      command: echo "server: https://{ vm_m_ip }}:9345" > /etc/rancher/rke2/config.yaml
+
+    - name: create a dir
+      command: echo "token: {{ master_token }" >> /etc/rancher/rke2/config.yaml
+
+    - name: Start and enable rke2-server service
+      systemd:
+        name: rke2-agent
+        enabled: yes
+        state: started
+
+    
+    
