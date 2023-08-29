@@ -17,7 +17,7 @@
       register: apt_result
 
     - name: Install RKE2 on rancher1
-      command: curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=server sh -
+      command: sh -c "curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=server sh -"
 
     - name: Start and enable rke2-server service
       systemd:
@@ -71,7 +71,7 @@
       become: yes
       
     - name: Install RKE2 on rancher1
-      command: curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=agent sh -
+      command: sh -c "curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=agent sh -"
       
     - name: create a dir
       command: mkdir -p /etc/rancher/rke2/
