@@ -1,0 +1,17 @@
+[master]
+137.135.2.9
+
+[master:vars]
+ansibe_ssh_private_key_file=/root/vmast.pem
+ansible_user=azureuser
+vm_w_ip=137.135.15.221
+vm_m_ip=137.135.2.9#u could define here for example just the remote machine ip and its gonna work cause in the playbook you are looping throught the groups and delete this line
+  
+[worker]
+137.135.15.221
+
+[worker:vars]
+ansibe_ssh_private_key_file=/root/vmwork.pem
+ansible_user=azureuser
+vm_m_ip=137.135.2.9
+vm_w_ip=137.135.15.221#u could define here for example just the remote machine ip and its gonna work cause in the playbook you are looping throught the groups and delete this line
