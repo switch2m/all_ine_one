@@ -1,0 +1,9 @@
+---
+- name: Configure RKE agents(worker)
+  hosts: worker
+  become: yes
+  tasks:
+    - name: Print the variable of the "docker" host
+      debug:
+        var: hostvars[item]['vm_m_ip']
+      loop: "{{ groups['master'] }}"
