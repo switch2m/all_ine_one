@@ -84,7 +84,7 @@ ANSIBLE PLAYBOOK
     #    vm_m_ip: "{{ vm_master_ip.stdout }}"
 
     #- name: set and print the variable in the same shell
-    #  command: sh -c "export MYIPS={{ vm_m_ip }} && echo $MYIPS" #this isn't gonna be in the env variable cause its get runs in just the sheel openned but ansible and it doesn't persist
+    #  command: sh -c "export MYIPS={{ vm_m_ip }} && echo $MYIPS" #this isn't gonna be in the env variable cause its get runs in just the sheel openned but ansible and it does not persist
 
 - name: Configure RKE agents(worker)
   hosts: worker
