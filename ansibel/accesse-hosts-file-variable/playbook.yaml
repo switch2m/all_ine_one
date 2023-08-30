@@ -51,6 +51,11 @@ ANSIBLE PLAYBOOK
       shell: ln -s $(find /var/lib/rancher/rke2/data/ -name kubectl) /usr/local/bin/kubectl
       ignore_errors: yes
 
+    - name: Change permissions of /etc/rancher/rke2/rke2.yaml to 777
+      file:
+        path: /etc/rancher/rke2/rke2.yaml
+        mode: '0777'
+        
     - name: Add KUBECONFIG environment variable
       command: sh -c "export KUBECONFIG=/etc/rancher/rke2/rke2.yaml"
       become: yes
@@ -76,7 +81,7 @@ ANSIBLE PLAYBOOK
       with_items: "{{ groups['all'] }}"
 
     #- name: get and extract the vm ip
-    #  command: sh -c "ip add | grep -oP 'inet \K[0-9.]+' | sed -n '2p'"
+    #  command: sh -c "ip add | grep -oP 'inet \K[0-9.]+' | sed -n '2p'" #for more versatility you could use $curl ipinfo.io to get the VMs IP
     #  register: vm_master_ip
 
     #- name: set vm_ip variable
