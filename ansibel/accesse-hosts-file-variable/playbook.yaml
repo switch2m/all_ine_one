@@ -79,15 +79,24 @@ ANSIBLE PLAYBOOK
       delegate_to: "{{ item }}"
       delegate_facts: true
       with_items: "{{ groups['all'] }}"
+# I comment out this section cause i used another approach which is adding the masters ips and workers ip on the hosts file on the vars field "
+[worker:vars]
+ansibe_ssh_private_key_file=/root/work.pem
+ansible_user=azureuser
+vm_m_ip=40.112.194.103 #this 
+vm_w_ip=13.64.104.74" #this"
 
     #- name: get and extract the vm ip
-    #  command: sh -c "ip add | grep -oP 'inet \K[0-9.]+' | sed -n '2p'" #for more versatility you could use $curl ipinfo.io to get the VMs IP
+    #  command: sh -c "ip add | grep -oP 'inet \K[0-9.]+' | sed -n '2p'" #for more versatility you could use $curl ipinfo.io | grep -oP '"ip": "\K\d+\.\d+\.\d+\.\d+'
+to get the VMs IP
     #  register: vm_master_ip
-
-    #- name: set vm_ip variable
-    #  set_fact: #this is how we set a variable in ansible
-    #    vm_m_ip: "{{ vm_master_ip.stdout }}"
-
+    #- name: set master node ip
+    #  set_fact:
+    #    master_token: "{{ vm_master_ip.stdout }}"
+    #  delegate_to: "{{ item }}"
+    #  delegate_facts: true
+    #  with_items: "{{ groups['all'] }}"
+      
     #- name: set and print the variable in the same shell
     #  command: sh -c "export MYIPS={{ vm_m_ip }} && echo $MYIPS" #this isn't gonna be in the env variable cause its get runs in just the sheel openned but ansible and it does not persist
 
