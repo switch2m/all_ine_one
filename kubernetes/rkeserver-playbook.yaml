@@ -1,3 +1,4 @@
+#first make sure to open the necessary port check this link https://docs.rke2.io/install/requirements#linux
 ---
 - name: Configure RKE Server(master)
   hosts: master
