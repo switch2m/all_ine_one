@@ -1,4 +1,4 @@
- # MetalLB
+ # NGINX Controller as a DeamonSet
 
 first u need to setup nginx controller on your k8s cluster
 ```
