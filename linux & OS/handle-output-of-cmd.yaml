@@ -1,0 +1,45 @@
+Both `tail` and `sed` are versatile tools for text processing in Unix-like operating systems. Here's how the `+2` argument in `tail` and the `1d` command in `sed` work:
+
+### tail -n +2
+
+- `tail` is a command that outputs the last part of files or streams.
+- `-n` is an option that specifies the number of lines to be shown.
+- `+2` tells `tail` to start displaying from the second line of the output. This means it will skip the first line.
+
+To break it down:
+- `n` stands for "number of lines."
+- `+` indicates the starting point (inclusive).
+- `2` indicates the line number to start from.
+
+So, if you wanted to skip the first `N` lines, you would use `tail -n +M` where `M` is `N + 1`. For example, to skip the first 3 lines, you would use `tail -n +4`.
+
+### sed '1d'
+
+- `sed` is a stream editor for filtering and transforming text.
+- `1d` is a `sed` command that tells `sed` to delete the first line.
+- `1` specifies the address of the command in `sed`, which in this case is the first line of the input.
+- `d` stands for "delete."
+
+In `sed`, you can also specify a range of lines to operate on. For example, to delete the first 3 lines of output, you would use `sed '1,3d'`. If you want to delete every line except the first one, you would use `sed '1!d'`, where `!` indicates "not" – so it means "do not delete the first line."
+
+Both `tail` and `sed` are very powerful and can be combined with other commands in pipelines to manipulate text streams in complex ways. Understanding these basic operations allows you to expand and adapt your use of these tools for various use cases.
+
+-The `awk` command is an entire programming language designed for text processing. In the command `awk '{print $2}'`, here's what each part means:
+
+- `awk` is the command itself, calling the AWK language interpreter.
+- `{print $2}` is the AWK program enclosed in single quotes. This is executed for each line of input.
+- `{ ... }` is the action block where the instructions are placed. AWK executes this block for every line of input by default.
+- `print` is an AWK built-in function that outputs the given expressions.
+- `$2` represents the second field in the current record. AWK splits records into fields based on the field separator, which is whitespace by default.
+
+When you run `awk '{print $2}'`, AWK processes the input line by line, splits each line into fields (words, by default), and prints out the second field of each line.
+
+To manipulate this command for different use cases, you can change the field number or use multiple fields. Here are a few examples:
+
+- To print the first field: `awk '{print $1}'`
+- To print the second and third fields: `awk '{print $2, $3}'`
+- To print the last field of each line: `awk '{print $NF}'` (`NF` is an AWK built-in variable that stands for the number of fields in the current record)
+- To print the second field of lines that contain the word "error": `awk '/error/ {print $2}'`
+- To change the field separator to a comma and print the second field: `awk -F, '{print $2}'`
+
+These examples illustrate how you can adjust the AWK command to suit different scenarios involving text processing.
